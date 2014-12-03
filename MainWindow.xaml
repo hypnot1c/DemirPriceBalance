@@ -9,8 +9,8 @@
   <Grid>
     <GroupBox x:Name="groupBox" Header="Output file" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="63" Width="303">
       <Grid>
-        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" Text="Select output file..." VerticalAlignment="Top" Width="240"/>
-        <Button x:Name="button" HorizontalAlignment="Right" Margin="0,10,10,0" VerticalAlignment="Top" Width="24" Height="24">
+        <TextBox x:Name="txtDemirTires" HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" Text="Select output file..." VerticalAlignment="Top" Width="240"/>
+        <Button x:Name="btnDemirTires" HorizontalAlignment="Right" Margin="0,10,10,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
           <StackPanel>
             <Image Source="{StaticResource  ResourceKey=upload}" />
           </StackPanel>
@@ -19,20 +19,20 @@
     </GroupBox>
     <GroupBox x:Name="groupBox1" Header="Input files" HorizontalAlignment="Left" Margin="10,78,0,0" VerticalAlignment="Top" Height="122" Width="302">
       <Grid>
-        <TextBox x:Name="txtFile" HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" Text="Select Шинсервис file..." VerticalAlignment="Top" Width="240"/>
-        <Button x:Name="btnUpload" HorizontalAlignment="Left" Margin="256,10,0,0" VerticalAlignment="Top" Width="24" Height="24">
+        <TextBox x:Name="txtShinService" HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" Text="Select Шинсервис file..." VerticalAlignment="Top" Width="240"/>
+        <Button x:Name="btnShinService" HorizontalAlignment="Left" Margin="256,10,0,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
           <StackPanel>
             <Image Source="{StaticResource  ResourceKey=upload}" />
           </StackPanel>
         </Button>
-        <TextBox x:Name="txtFile2" HorizontalAlignment="Left" Height="23" Margin="10,40,0,0" TextWrapping="Wrap" Text="Select Юнипол file..." VerticalAlignment="Top" Width="240"/>
-        <Button x:Name="btnUpload2" HorizontalAlignment="Left" Margin="256,40,0,0" VerticalAlignment="Top" Width="24" Height="24">
+        <TextBox x:Name="txtUnipol" HorizontalAlignment="Left" Height="23" Margin="10,40,0,0" TextWrapping="Wrap" Text="Select Юнипол file..." VerticalAlignment="Top" Width="240"/>
+        <Button x:Name="btnUnipol" HorizontalAlignment="Left" Margin="256,40,0,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
           <StackPanel>
             <Image Source="{StaticResource  ResourceKey=upload}" />
           </StackPanel>
         </Button>
-        <TextBox x:Name="txtFile3" HorizontalAlignment="Left" Height="23" Margin="10,70,0,0" TextWrapping="Wrap" Text="Select Са.ру file..." VerticalAlignment="Top" Width="240"/>
-        <Button x:Name="btnUpload3" HorizontalAlignment="Left" Margin="256,70,0,0" VerticalAlignment="Top" Width="24" Height="24">
+        <TextBox x:Name="txtSaRu" HorizontalAlignment="Left" Height="23" Margin="10,70,0,0" TextWrapping="Wrap" Text="Select Са.ру file..." VerticalAlignment="Top" Width="240"/>
+        <Button x:Name="btnSaRu" HorizontalAlignment="Left" Margin="256,70,0,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
           <StackPanel>
             <Image Source="{StaticResource  ResourceKey=upload}" />
           </StackPanel>
@@ -41,5 +41,6 @@
     </GroupBox>
     <ProgressBar x:Name="prbWork" HorizontalAlignment="Left" Height="5" Margin="10,205,0,0" VerticalAlignment="Top" Width="302"/>
     <Button x:Name="btnMerge" Content="Merge" HorizontalAlignment="Left" Margin="237,215,0,0" VerticalAlignment="Top" Width="75" Click="btnMerge_Click"/>
+    <Label x:Name="lblState" Content="" HorizontalAlignment="Left" Margin="10,215,0,0" VerticalAlignment="Top"/>
   </Grid>
 </Window>
