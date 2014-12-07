@@ -13,6 +13,19 @@ namespace DemirPriceBalance.Logic
 {
   class ExcelReader
   {
+    public static int GetProductCount(string sourceValue)
+    {
+      var _value = sourceValue.ToLower().Trim();
+      int _result = 0;
+      var isNum = Int32.TryParse(_value, out _result);
+      if (!isNum)
+      {
+        if (_value == "да" || _value.StartsWith("более"))
+          _result = 20;
+      }
+      return _result;
+    }
+
     public static Dictionary<string, string[]> readExcel(string file, Dictionary<string, object> parameters)
     {
       var _pageName = parameters["pageName"].ToString();
@@ -29,7 +42,10 @@ namespace DemirPriceBalance.Logic
         {
           var key = i.Cell(_clmnIdInd).RichText.Text;
           if (!goods.ContainsKey(key))
-            goods.Add(key, new string[] { i.RowNumber().ToString(), i.Cell(_clmnPriceInd).RichText.Text, i.Cell(_clmnCntInd).RichText.Text });
+          {
+            var _count = ExcelReader.GetProductCount(i.Cell(_clmnCntInd).RichText.Text);
+            goods.Add(key, new string[] { i.RowNumber().ToString(), i.Cell(_clmnPriceInd).RichText.Text, _count == 0 ? String.Empty : _count.ToString() });
+          }
           else
             Debug.WriteLine(key);
         }
@@ -37,18 +53,25 @@ namespace DemirPriceBalance.Logic
       }
     }
 
-    public static void writeExcel(string file, Dictionary<string, string[]> data)
+    public static XLWorkbook writeExcel(string file, Dictionary<string, string[]> data, Dictionary<string, object[]> parameters)
     {
-      using (var xls = new XLWorkbook(Path.GetFullPath(file)))
+      return ExcelReader.writeExcel(new XLWorkbook(Path.GetFullPath(file)), data, parameters);
+    }
+
+    public static XLWorkbook writeExcel(XLWorkbook xls, Dictionary<string, string[]> data, Dictionary<string, object[]> parameters)
+    {
+      foreach (var _sheet in parameters)
       {
-        var sheets = new Dictionary<string, Dictionary<string, object>> { {"Шины", new Dictionary<string, object> { { "price", (object)"X" } } } };
-        using (var wrs = xls.Worksheet("Шины"))
+        using (var wrs = xls.Worksheet(_sheet.Key))
         {
-          var rows = wrs.Rows().Where(x => !String.IsNullOrEmpty(x.Cell("A").Value.ToString()));
+          var _clmnIdInd = _sheet.Value[0].ToString();
+          var _clmnPriceInd = _sheet.Value[1].ToString();
+          var _clmnCntInd = _sheet.Value[2].ToString();
+          var rows = wrs.Rows().Where(x => !String.IsNullOrEmpty(x.Cell(_clmnIdInd).Value.ToString()));
           var goods = new Dictionary<string, int>(wrs.RowCount());
           foreach (var i in rows)
           {
-            var key = i.Cell("A").RichText.Text;
+            var key = i.Cell(_clmnIdInd).RichText.Text;
             if (!goods.ContainsKey(key))
               goods.Add(key, i.RowNumber());
             else
@@ -59,15 +82,15 @@ namespace DemirPriceBalance.Logic
             if (data.ContainsKey(i.Key))
             {
               var vls = data[i.Key];
-              wrs.Cell(i.Value, "X").Value = vls[1];
+              wrs.Cell(i.Value, _clmnPriceInd).Value = vls[1];
               int count = 0;
               var isNum = Int32.TryParse(vls[2], out count);
-              wrs.Cell(i.Value, "W").Value = isNum ? (object)count : (object)String.Empty;
+              wrs.Cell(i.Value, _clmnCntInd).Value = isNum ? (object)count : (object)String.Empty;
             }
           }
         }
-        xls.SaveAs(@"D:\Documents\GitHub\DemirPriceBalance\docs\DEMIR шины и диски 20.10.20141.xlsx");
       }
+      return xls;
     }
   }
 }
