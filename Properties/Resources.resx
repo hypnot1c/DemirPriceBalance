@@ -120,6 +120,9 @@
   <data name="demirTiresFile" xml:space="preserve">
     <value>../../docs/DEMIR шины и диски 20.10.2014.xlsx</value>
   </data>
+  <data name="demirTiresInFile" xml:space="preserve">
+    <value>../../docs/DEMIR_Tires_and_Disks.xlsx</value>
+  </data>
   <data name="saRuFile" xml:space="preserve">
     <value>../../docs/Са.ру.xlsm</value>
   </data>

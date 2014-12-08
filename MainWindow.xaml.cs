@@ -29,7 +29,8 @@ namespace DemirPriceBalance
     public MainWindow()
     {
       InitializeComponent();
-      txtDemirTires.Text = Path.GetFullPath(Properties.Resources.ResourceManager.GetString("demirTiresFile"));
+      txtDemirTires.Text = Path.GetFullPath(Properties.Resources.ResourceManager.GetString("demirTiresInFile"));
+      txtDemirTiresSrc.Text = Path.GetFullPath(Properties.Resources.ResourceManager.GetString("demirTiresFile"));
       txtUnipol.Text = Path.GetFullPath(Properties.Resources.ResourceManager.GetString("unipolFile"));
       txtShinService.Text = Path.GetFullPath(Properties.Resources.ResourceManager.GetString("shinServiceFile"));
       txtSaRu.Text = Path.GetFullPath(Properties.Resources.ResourceManager.GetString("saRuFile"));
@@ -43,7 +44,7 @@ namespace DemirPriceBalance
       wrk.DoWork += worker_DoWork;
       wrk.ProgressChanged += worker_ProgressChanged;
       wrk.RunWorkerCompleted += worker_RunWorkerCompleted;
-      wrk.RunWorkerAsync(new string[] { txtUnipol.Text, txtShinService.Text, txtSaRu.Text, txtDemirTires.Text });
+      wrk.RunWorkerAsync(new string[] { txtUnipol.Text, txtShinService.Text, txtSaRu.Text, txtDemirTiresSrc.Text, txtDemirTires.Text });
     }
 
     private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -79,7 +80,7 @@ namespace DemirPriceBalance
       var wrk = (BackgroundWorker)sender;
       wrk.ReportProgress(1);
       var args = (string[])e.Argument;
-      var parameters = new Dictionary<string, object> { { "pageName", "TDSheet" }, { "id", 12 }, { "price", 13 }, { "count", 15 } };
+      var parameters = new Dictionary<string, object> { { "pageName", "TDSheet" }, { "id", 12 }, { "price", 14 }, { "count", 15 } };
       var uni = ExcelReader.readExcel(args[0], parameters);
       wrk.ReportProgress(2);
       parameters["id"] = 1;
@@ -87,15 +88,23 @@ namespace DemirPriceBalance
       parameters["count"] = 9;
       var shin = ExcelReader.readExcel(args[1], parameters);
       wrk.ReportProgress(3);
-      parameters["pageName"] = "Легковая резина";
-      parameters["id"] = 17;
+      parameters["pageName"] = "Диски";
+      parameters["id"] = 1;
       parameters["price"] = 6;
       parameters["count"] = 3;
       var sa = ExcelReader.readExcel(args[2], parameters);
       wrk.ReportProgress(4);
       try
       {
-        ExcelReader.writeExcel(args[3], uni);
+        var pars = new Dictionary<string, object[]> { { "Шины", new object[] { 1, 24, 23 } } };
+        using (var xls = ExcelReader.writeExcel(args[3], uni, pars))
+        {
+          pars = new Dictionary<string, object[]> { { "Шины", new object[] { 1, 26, 25 } } };
+          var xls1 = ExcelReader.writeExcel(xls, shin, pars);
+          pars = new Dictionary<string, object[]> { { "Диски реплика", new object[] { 1, 20, 19 } } };
+          xls1 = ExcelReader.writeExcel(xls, sa, pars);
+          xls1.SaveAs(args[4]);
+        }
       }
       catch (Exception ex)
       {
