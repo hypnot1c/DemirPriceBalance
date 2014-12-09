@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DemirPriceBalance.Logic
 {
-  class PriceList
+  public class PriceList
   {
     public struct Stuff
     {

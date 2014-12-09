@@ -43,28 +43,24 @@ namespace DemirPriceBalance
     private void btnMerge_Click(object sender, RoutedEventArgs e)
     {
       prbWork.IsIndeterminate = true;
-      var uniThread = new Thread(ExcelReader.readExcel);
-      var shinThread = new Thread(ExcelReader.readExcel);
-      var saThread = new Thread(ExcelReader.readExcel);
-      ExcelReader.readDone += worker_RunWorkerCompleted;
-      var _pars1 = new Dictionary<string, object> {
-        { "file", txtUnipol.Text },
-        { "supplierName", "uni" },
-        { "parameters", new Dictionary<string, object> { { "pageName", "TDSheet" }, { "id", 12 }, { "price", 14 }, { "count", 15 } } },
-      };
-      var _pars2 = new Dictionary<string, object> {
-        { "file", txtShinService.Text },
-        { "supplierName", "shin" },
-        { "parameters", new Dictionary<string, object> { { "pageName", "TDSheet" }, { "id", 1 }, { "price", 8 }, { "count", 9 } } }
-      };
-      var _pars3 = new Dictionary<string, object> {
-        { "file", txtSaRu.Text },
-        { "supplierName", "sa" },
-        { "parameters", new Dictionary<string, object> { { "pageName", "Диски" }, { "id", 1 }, { "price", 6 }, { "count", 3 } } }
-      };
+      var uniThread = new ReadThread(txtUnipol.Text, "TDSheet", 12, 14, 15);
+      uniThread.readDone += worker_RunWorkerCompleted;
+      var dThread = new ReadThread(txtDemirTiresSrc.Text, "Шины", 1, 24, 23);
+      dThread.readDone += worker_RunWorkerCompleted;
+      //var _pars2 = new Dictionary<string, object> {
+      //  { "file", txtShinService.Text },
+      //  { "supplierName", "shin" },
+      //  { "parameters", new Dictionary<string, object> { { "pageName", "TDSheet" }, { "id", 1 }, { "price", 8 }, { "count", 9 } } }
+      //};
+      //var _pars3 = new Dictionary<string, object> {
+      //  { "file", txtSaRu.Text },
+      //  { "supplierName", "sa" },
+      //  { "parameters", new Dictionary<string, object> { { "pageName", "Диски" }, { "id", 1 }, { "price", 6 }, { "count", 3 } } }
+      //};
       this._documentCount = 1;
       lblState.Content = "Reading files. 1 left...";
-      uniThread.Start(_pars1);
+      var thdUni = new Thread(uniThread.GetDataFromFile);
+      thdUni.Start("uni");
       //shinThread.Start(_pars2);
       //saThread.Start(_pars3);
     }
@@ -84,7 +80,7 @@ namespace DemirPriceBalance
       }
     }
 
-    public void worker_RunWorkerCompleted(object sender, ExcelReader.ReadFileEventArgs e)
+    public void worker_RunWorkerCompleted(object sender, ReadFileEventArgs e)
     {
       lock (DocData)
       {
@@ -98,12 +94,13 @@ namespace DemirPriceBalance
       }
       if (_documentCount == 0)
       {
-        File.Copy(Path.GetFullPath("../../docs/DEMIR шины и диски 20.10.2014.xlsx"), Path.GetFullPath("../../docs/DEMIR_Tires_and_Disks.xlsx"), true);
+        //File.Copy(Path.GetFullPath("../../docs/DEMIR шины и диски 20.10.2014.xlsx"), Path.GetFullPath("../../docs/DEMIR_Tires_and_Disks.xlsx"), true);
         var xls = new ClosedXML.Excel.XLWorkbook(Path.GetFullPath("../../docs/DEMIR_Tires_and_Disks.xlsx"));
-        while(DocData.Count > 0) {
+        while (DocData.Count > 0)
+        {
           var supp = DocData.Dequeue();
           var pars = this.GetWriteParams(supp.SupplierName);
-          var _pars = new Dictionary<string, object> { { "file", xls }, {  "data", supp }, { "parameters", pars} };
+          var _pars = new Dictionary<string, object> { { "file", xls }, { "data", supp }, { "parameters", pars } };
           xls = ExcelReader.writeExcel(_pars);
         }
         xls.Save();

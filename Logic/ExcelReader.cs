@@ -12,24 +12,22 @@ using ClosedXML.Excel;
 
 namespace DemirPriceBalance.Logic
 {
-  class ExcelReader
+  public class ReadFileEventArgs : EventArgs
   {
-    public static EventHandler<ReadFileEventArgs> readDone;
-    public static EventHandler writeDone;
-
-    public class ReadFileEventArgs: EventArgs
+    public string SupplierName
     {
-      public string SupplierName
-      {
-        get;
-        set;
-      }
-
-      public ReadFileEventArgs(string supplierName)
-      {
-        this.SupplierName = supplierName;
-      }
+      get;
+      set;
     }
+
+    public ReadFileEventArgs(string supplierName)
+    {
+      this.SupplierName = supplierName;
+    }
+  }
+  public class ExcelReader
+  {
+    public static EventHandler writeDone;
 
     public static int GetProductCount(string sourceValue)
     {
@@ -44,30 +42,22 @@ namespace DemirPriceBalance.Logic
       return _result;
     }
 
-    public static void readExcel(object data)
+    public static List<PriceList.Stuff> readExcel(string file, string sheetName, int clmnId, int clmnPrice, int clmnCount)
     {
-      var _data = (Dictionary<string, object>)data;
-      var file = _data["file"].ToString();
-      var parameters = (Dictionary<string, object>)_data["parameters"];
-      var _pageName = parameters["pageName"].ToString();
-      var _clmnIdInd = parameters["id"].CastTo<int>();
-      var _clmnPriceInd = parameters["price"].CastTo<int>();
-      var _clmnCntInd = parameters["count"].CastTo<int>();
       var goods = new List<PriceList.Stuff>();
       using (var xls = new XLWorkbook(Path.GetFullPath(file)))
       {
-        var wrs = xls.Worksheet(_pageName);
+        var wrs = xls.Worksheet(sheetName);
 
-        var res = wrs.Rows().Where(x => !String.IsNullOrEmpty(x.Cell(_clmnIdInd).Value.CastTo<String>()) && x.Cell(_clmnIdInd).Value.CastTo<String>() != "Код производителя");
-        foreach (var i in res)
+        for (int _i = 1, _rowCnt = wrs.RowCount(); _i <= _rowCnt; _i++)
         {
-          var key = i.Cell(_clmnIdInd).RichText.Text;
-          var _count = ExcelReader.GetProductCount(i.Cell(_clmnCntInd).RichText.Text);
-          goods.Add(new PriceList.Stuff(key, _count == 0 ? String.Empty : _count.ToString(), i.Cell(_clmnPriceInd).RichText.Text));
+          if (!String.IsNullOrEmpty(wrs.Cell(_i, clmnId).Value.ToString()) && wrs.Cell(_i, clmnId).Value.ToString() != "Код производителя") continue;
+          var key = wrs.Cell(_i, clmnId).RichText.Text;
+          var _count = ExcelReader.GetProductCount(wrs.Cell(_i, clmnId).RichText.Text);
+          goods.Add(new PriceList.Stuff(key, _count == 0 ? String.Empty : _count.ToString(), wrs.Cell(_i, clmnId).RichText.Text));
         }
       }
-      if (readDone != null)
-        readDone(goods, new ReadFileEventArgs(_data["supplierName"].ToString()));
+      return goods;
     }
 
     public static XLWorkbook writeExcel(object data)
@@ -86,7 +76,7 @@ namespace DemirPriceBalance.Logic
           var _clmnPriceInd = _sheet.Value[1].ToString();
           var _clmnCntInd = _sheet.Value[2].ToString();
           var goods = new Dictionary<string, int>(wrs.RowCount());
-          for (var _i = 1; _i <= wrs.RowCount(); _i++)
+          for (int _i = 1, _rowCnt = wrs.RowCount(); _i <= _rowCnt; _i++)
           {
             if (String.IsNullOrEmpty(wrs.Cell(_i, _clmnIdInd).Value.ToString())) continue;
 
