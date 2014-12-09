@@ -27,6 +27,9 @@ namespace DemirPriceBalance
   /// </summary>
   public partial class MainWindow : Window
   {
+    private int _documentCount = 0;
+    private Queue<PriceList> DocData = new Queue<PriceList>();
+
     public MainWindow()
     {
       InitializeComponent();
@@ -59,11 +62,11 @@ namespace DemirPriceBalance
         { "supplierName", "sa" },
         { "parameters", new Dictionary<string, object> { { "pageName", "Диски" }, { "id", 1 }, { "price", 6 }, { "count", 3 } } }
       };
-      ExcelReader.DocumentCount = 3;
-      lblState.Content = "Reading files. 3 left...";
+      this._documentCount = 1;
+      lblState.Content = "Reading files. 1 left...";
       uniThread.Start(_pars1);
-      shinThread.Start(_pars2);
-      saThread.Start(_pars3);
+      //shinThread.Start(_pars2);
+      //saThread.Start(_pars3);
     }
 
     private Dictionary<string, object[]> GetWriteParams(string supplierName)
@@ -81,25 +84,30 @@ namespace DemirPriceBalance
       }
     }
 
-    public void worker_RunWorkerCompleted(object sender, EventArgs e)
+    public void worker_RunWorkerCompleted(object sender, ExcelReader.ReadFileEventArgs e)
     {
-      if (ExcelReader.DocumentCount == 0)
+      lock (DocData)
       {
-        //File.Copy(Path.GetFullPath("../../docs/DEMIR шины и диски 20.10.2014.xlsx"), Path.GetFullPath("../../docs/DEMIR_Tires_and_Disks.xlsx"), true);
-        //var xls = new ClosedXML.Excel.XLWorkbook(Path.GetFullPath("../../docs/DEMIR_Tires_and_Disks.xlsx"));
-        //while(ExcelReader.DocData.Count > 0) {
-        //  var supp = ExcelReader.DocData.Dequeue();
-        //  var pars = this.GetWriteParams(supp.SupplierName);
-        //  var _pars = new Dictionary<string, object> { { "file", xls}, {  "data", supp }, { "parameters", pars} };
-        //  xls = ExcelReader.writeExcel(_pars);
-        //}
-        //xls.Save();
-        lblState.Dispatcher.Invoke(delegate() { lblState.Content = "Done."; });
-        GC.Collect();
+        lock ((object)_documentCount)
+        {
+          var pl = new PriceList(e.SupplierName, (List<PriceList.Stuff>)sender);
+          DocData.Enqueue(pl);
+          _documentCount--;
+          lblState.Dispatcher.Invoke(delegate() { lblState.Content = "Reading files. " + this._documentCount.ToString() + " left..."; });
+        }
       }
-      else
+      if (_documentCount == 0)
       {
-        lblState.Dispatcher.Invoke(delegate() { lblState.Content = "Reading files. " + ExcelReader.DocumentCount.ToString() + " left..."; });
+        File.Copy(Path.GetFullPath("../../docs/DEMIR шины и диски 20.10.2014.xlsx"), Path.GetFullPath("../../docs/DEMIR_Tires_and_Disks.xlsx"), true);
+        var xls = new ClosedXML.Excel.XLWorkbook(Path.GetFullPath("../../docs/DEMIR_Tires_and_Disks.xlsx"));
+        while(DocData.Count > 0) {
+          var supp = DocData.Dequeue();
+          var pars = this.GetWriteParams(supp.SupplierName);
+          var _pars = new Dictionary<string, object> { { "file", xls }, {  "data", supp }, { "parameters", pars} };
+          xls = ExcelReader.writeExcel(_pars);
+        }
+        xls.Save();
+        lblState.Dispatcher.Invoke(delegate() { lblState.Content = "Done."; });
       }
     }
 

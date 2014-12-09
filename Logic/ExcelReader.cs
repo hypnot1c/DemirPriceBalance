@@ -14,8 +14,22 @@ namespace DemirPriceBalance.Logic
 {
   class ExcelReader
   {
-    public static EventHandler readDone;
+    public static EventHandler<ReadFileEventArgs> readDone;
     public static EventHandler writeDone;
+
+    public class ReadFileEventArgs: EventArgs
+    {
+      public string SupplierName
+      {
+        get;
+        set;
+      }
+
+      public ReadFileEventArgs(string supplierName)
+      {
+        this.SupplierName = supplierName;
+      }
+    }
 
     public static int GetProductCount(string sourceValue)
     {
@@ -30,55 +44,37 @@ namespace DemirPriceBalance.Logic
       return _result;
     }
 
-    private static int _documentCount = 0;
-    public static int DocumentCount
-    {
-      get { return _documentCount; }
-      set
-      {
-        _documentCount = value;
-      }
-    }
-
-    public static Queue<PriceList> DocData = new Queue<PriceList>();
-
     public static void readExcel(object data)
     {
       var _data = (Dictionary<string, object>)data;
       var file = _data["file"].ToString();
       var parameters = (Dictionary<string, object>)_data["parameters"];
-      var supplierName = _data["supplierName"].ToString();
       var _pageName = parameters["pageName"].ToString();
       var _clmnIdInd = parameters["id"].CastTo<int>();
       var _clmnPriceInd = parameters["price"].CastTo<int>();
       var _clmnCntInd = parameters["count"].CastTo<int>();
+      var goods = new List<PriceList.Stuff>();
       using (var xls = new XLWorkbook(Path.GetFullPath(file)))
       {
         var wrs = xls.Worksheet(_pageName);
 
         var res = wrs.Rows().Where(x => !String.IsNullOrEmpty(x.Cell(_clmnIdInd).Value.CastTo<String>()) && x.Cell(_clmnIdInd).Value.CastTo<String>() != "Код производителя");
-        var goods = new List<PriceList.Stuff>(res.Count());
         foreach (var i in res)
         {
           var key = i.Cell(_clmnIdInd).RichText.Text;
           var _count = ExcelReader.GetProductCount(i.Cell(_clmnCntInd).RichText.Text);
           goods.Add(new PriceList.Stuff(key, _count == 0 ? String.Empty : _count.ToString(), i.Cell(_clmnPriceInd).RichText.Text));
         }
-
-        lock (DocData)
-        {
-          DocData.Enqueue(new PriceList(supplierName, goods));
-          _documentCount--;
-          if (readDone != null)
-            readDone(new object(), EventArgs.Empty);
-        }
       }
+      if (readDone != null)
+        readDone(goods, new ReadFileEventArgs(_data["supplierName"].ToString()));
     }
 
     public static XLWorkbook writeExcel(object data)
     {
       var _pars = (Dictionary<string, object>)data;
-      var xls = _pars["file"].GetType().ToString() == "string" ? new XLWorkbook(Path.GetFullPath(_pars["file"].ToString()).ToString()) : (XLWorkbook)_pars["file"];
+      //var xls = _pars["file"].GetType().ToString() == "string" ? new XLWorkbook(Path.GetFullPath(_pars["file"].ToString()).ToString()) : (XLWorkbook)_pars["file"];
+      var xls = (XLWorkbook)_pars["file"];
       var _data = (PriceList)_pars["data"];
       var parameters = (Dictionary<string, object[]>)_pars["parameters"];
 
