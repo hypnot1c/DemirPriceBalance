@@ -18,6 +18,7 @@ using System.Windows.Navigation;
 using DemirPriceBalance.Logic;
 using Microsoft.Win32;
 using System.Diagnostics;
+using System.Threading;
 
 namespace DemirPriceBalance
 {
@@ -39,18 +40,67 @@ namespace DemirPriceBalance
     private void btnMerge_Click(object sender, RoutedEventArgs e)
     {
       prbWork.IsIndeterminate = true;
-      var wrk = new BackgroundWorker();
-      wrk.WorkerReportsProgress = true;
-      wrk.DoWork += worker_DoWork;
-      wrk.ProgressChanged += worker_ProgressChanged;
-      wrk.RunWorkerCompleted += worker_RunWorkerCompleted;
-      wrk.RunWorkerAsync(new string[] { txtUnipol.Text, txtShinService.Text, txtSaRu.Text, txtDemirTiresSrc.Text, txtDemirTires.Text });
+      var uniThread = new Thread(ExcelReader.readExcel);
+      var shinThread = new Thread(ExcelReader.readExcel);
+      var saThread = new Thread(ExcelReader.readExcel);
+      ExcelReader.readDone += worker_RunWorkerCompleted;
+      var _pars1 = new Dictionary<string, object> {
+        { "file", txtUnipol.Text },
+        { "supplierName", "uni" },
+        { "parameters", new Dictionary<string, object> { { "pageName", "TDSheet" }, { "id", 12 }, { "price", 14 }, { "count", 15 } } },
+      };
+      var _pars2 = new Dictionary<string, object> {
+        { "file", txtShinService.Text },
+        { "supplierName", "shin" },
+        { "parameters", new Dictionary<string, object> { { "pageName", "TDSheet" }, { "id", 1 }, { "price", 8 }, { "count", 9 } } }
+      };
+      var _pars3 = new Dictionary<string, object> {
+        { "file", txtSaRu.Text },
+        { "supplierName", "sa" },
+        { "parameters", new Dictionary<string, object> { { "pageName", "Диски" }, { "id", 1 }, { "price", 6 }, { "count", 3 } } }
+      };
+      ExcelReader.DocumentCount = 3;
+      lblState.Content = "Reading files. 3 left...";
+      uniThread.Start(_pars1);
+      shinThread.Start(_pars2);
+      saThread.Start(_pars3);
     }
 
-    private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+    private Dictionary<string, object[]> GetWriteParams(string supplierName)
     {
-      //throw new NotImplementedException();
-      prbWork.IsIndeterminate = false;
+      switch (supplierName)
+      {
+        case "uni":
+          return new Dictionary<string, object[]> { { "Шины", new object[] { 1, 24, 23 } } };
+        case "shin":
+          return new Dictionary<string, object[]> { { "Шины", new object[] { 1, 26, 25 } } };
+        case "sa":
+          return new Dictionary<string, object[]> { { "Диски реплика", new object[] { 1, 20, 19 } } };
+        default:
+          return new Dictionary<string, object[]>();
+      }
+    }
+
+    public void worker_RunWorkerCompleted(object sender, EventArgs e)
+    {
+      if (ExcelReader.DocumentCount == 0)
+      {
+        //File.Copy(Path.GetFullPath("../../docs/DEMIR шины и диски 20.10.2014.xlsx"), Path.GetFullPath("../../docs/DEMIR_Tires_and_Disks.xlsx"), true);
+        //var xls = new ClosedXML.Excel.XLWorkbook(Path.GetFullPath("../../docs/DEMIR_Tires_and_Disks.xlsx"));
+        //while(ExcelReader.DocData.Count > 0) {
+        //  var supp = ExcelReader.DocData.Dequeue();
+        //  var pars = this.GetWriteParams(supp.SupplierName);
+        //  var _pars = new Dictionary<string, object> { { "file", xls}, {  "data", supp }, { "parameters", pars} };
+        //  xls = ExcelReader.writeExcel(_pars);
+        //}
+        //xls.Save();
+        lblState.Dispatcher.Invoke(delegate() { lblState.Content = "Done."; });
+        GC.Collect();
+      }
+      else
+      {
+        lblState.Dispatcher.Invoke(delegate() { lblState.Content = "Reading files. " + ExcelReader.DocumentCount.ToString() + " left..."; });
+      }
     }
 
     private void worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -74,46 +124,6 @@ namespace DemirPriceBalance
           break;
       }
     }
-
-    private void worker_DoWork(object sender, DoWorkEventArgs e)
-    {
-      var wrk = (BackgroundWorker)sender;
-      wrk.ReportProgress(1);
-      var args = (string[])e.Argument;
-      var parameters = new Dictionary<string, object> { { "pageName", "TDSheet" }, { "id", 12 }, { "price", 14 }, { "count", 15 } };
-      var uni = ExcelReader.readExcel(args[0], parameters);
-      wrk.ReportProgress(2);
-      parameters["id"] = 1;
-      parameters["price"] = 8;
-      parameters["count"] = 9;
-      var shin = ExcelReader.readExcel(args[1], parameters);
-      wrk.ReportProgress(3);
-      parameters["pageName"] = "Диски";
-      parameters["id"] = 1;
-      parameters["price"] = 6;
-      parameters["count"] = 3;
-      var sa = ExcelReader.readExcel(args[2], parameters);
-      wrk.ReportProgress(4);
-      try
-      {
-        var pars = new Dictionary<string, object[]> { { "Шины", new object[] { 1, 24, 23 } } };
-        using (var xls = ExcelReader.writeExcel(args[3], uni, pars))
-        {
-          pars = new Dictionary<string, object[]> { { "Шины", new object[] { 1, 26, 25 } } };
-          var xls1 = ExcelReader.writeExcel(xls, shin, pars);
-          pars = new Dictionary<string, object[]> { { "Диски реплика", new object[] { 1, 20, 19 } } };
-          xls1 = ExcelReader.writeExcel(xls, sa, pars);
-          xls1.SaveAs(args[4]);
-        }
-      }
-      catch (Exception ex)
-      {
-        MessageBox.Show("Error saving file", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-      }
-      wrk.ReportProgress(5);
-      GC.Collect();
-    }
-
 
     private void btnSelect_Click(object sender, RoutedEventArgs e)
     {

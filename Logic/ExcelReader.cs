@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,9 @@ namespace DemirPriceBalance.Logic
 {
   class ExcelReader
   {
+    public static EventHandler readDone;
+    public static EventHandler writeDone;
+
     public static int GetProductCount(string sourceValue)
     {
       var _value = sourceValue.ToLower().Trim();
@@ -26,8 +30,24 @@ namespace DemirPriceBalance.Logic
       return _result;
     }
 
-    public static Dictionary<string, string[]> readExcel(string file, Dictionary<string, object> parameters)
+    private static int _documentCount = 0;
+    public static int DocumentCount
     {
+      get { return _documentCount; }
+      set
+      {
+        _documentCount = value;
+      }
+    }
+
+    public static Queue<PriceList> DocData = new Queue<PriceList>();
+
+    public static void readExcel(object data)
+    {
+      var _data = (Dictionary<string, object>)data;
+      var file = _data["file"].ToString();
+      var parameters = (Dictionary<string, object>)_data["parameters"];
+      var supplierName = _data["supplierName"].ToString();
       var _pageName = parameters["pageName"].ToString();
       var _clmnIdInd = parameters["id"].CastTo<int>();
       var _clmnPriceInd = parameters["price"].CastTo<int>();
@@ -37,29 +57,31 @@ namespace DemirPriceBalance.Logic
         var wrs = xls.Worksheet(_pageName);
 
         var res = wrs.Rows().Where(x => !String.IsNullOrEmpty(x.Cell(_clmnIdInd).Value.CastTo<String>()) && x.Cell(_clmnIdInd).Value.CastTo<String>() != "Код производителя");
-        var goods = new Dictionary<string, string[]>(res.Count());
+        var goods = new List<PriceList.Stuff>(res.Count());
         foreach (var i in res)
         {
           var key = i.Cell(_clmnIdInd).RichText.Text;
-          if (!goods.ContainsKey(key))
-          {
-            var _count = ExcelReader.GetProductCount(i.Cell(_clmnCntInd).RichText.Text);
-            goods.Add(key, new string[] { i.RowNumber().ToString(), i.Cell(_clmnPriceInd).RichText.Text, _count == 0 ? String.Empty : _count.ToString() });
-          }
-          else
-            Debug.WriteLine(key);
+          var _count = ExcelReader.GetProductCount(i.Cell(_clmnCntInd).RichText.Text);
+          goods.Add(new PriceList.Stuff(key, _count == 0 ? String.Empty : _count.ToString(), i.Cell(_clmnPriceInd).RichText.Text));
         }
-        return goods;
+
+        lock (DocData)
+        {
+          DocData.Enqueue(new PriceList(supplierName, goods));
+          _documentCount--;
+          if (readDone != null)
+            readDone(new object(), EventArgs.Empty);
+        }
       }
     }
 
-    public static XLWorkbook writeExcel(string file, Dictionary<string, string[]> data, Dictionary<string, object[]> parameters)
+    public static XLWorkbook writeExcel(object data)
     {
-      return ExcelReader.writeExcel(new XLWorkbook(Path.GetFullPath(file)), data, parameters);
-    }
+      var _pars = (Dictionary<string, object>)data;
+      var xls = _pars["file"].GetType().ToString() == "string" ? new XLWorkbook(Path.GetFullPath(_pars["file"].ToString()).ToString()) : (XLWorkbook)_pars["file"];
+      var _data = (PriceList)_pars["data"];
+      var parameters = (Dictionary<string, object[]>)_pars["parameters"];
 
-    public static XLWorkbook writeExcel(XLWorkbook xls, Dictionary<string, string[]> data, Dictionary<string, object[]> parameters)
-    {
       foreach (var _sheet in parameters)
       {
         using (var wrs = xls.Worksheet(_sheet.Key))
@@ -67,25 +89,27 @@ namespace DemirPriceBalance.Logic
           var _clmnIdInd = _sheet.Value[0].ToString();
           var _clmnPriceInd = _sheet.Value[1].ToString();
           var _clmnCntInd = _sheet.Value[2].ToString();
-          var rows = wrs.Rows().Where(x => !String.IsNullOrEmpty(x.Cell(_clmnIdInd).Value.ToString()));
           var goods = new Dictionary<string, int>(wrs.RowCount());
-          foreach (var i in rows)
+          for (var _i = 1; _i <= wrs.RowCount(); _i++)
           {
-            var key = i.Cell(_clmnIdInd).RichText.Text;
+            if (String.IsNullOrEmpty(wrs.Cell(_i, _clmnIdInd).Value.ToString())) continue;
+
+            var key = wrs.Cell(_i, _clmnIdInd).RichText.Text;
             if (!goods.ContainsKey(key))
-              goods.Add(key, i.RowNumber());
+              goods.Add(key, _i);
             else
               Debug.WriteLine("Result: " + key);
           }
-          foreach (var i in goods)
+
+          for (var _i = 0; _i < _data.Goods.Count; _i++)
           {
-            if (data.ContainsKey(i.Key))
+            var vls = _data.Goods[_i];
+            if (goods.ContainsKey(vls.id))
             {
-              var vls = data[i.Key];
-              wrs.Cell(i.Value, _clmnPriceInd).Value = vls[1];
+              wrs.Cell(goods[vls.id], _clmnPriceInd).Value = vls.price;
               int count = 0;
-              var isNum = Int32.TryParse(vls[2], out count);
-              wrs.Cell(i.Value, _clmnCntInd).Value = isNum ? (object)count : (object)String.Empty;
+              var isNum = Int32.TryParse(vls.count, out count);
+              wrs.Cell(goods[vls.id], _clmnCntInd).Value = isNum ? (object)count : (object)String.Empty;
             }
           }
         }
