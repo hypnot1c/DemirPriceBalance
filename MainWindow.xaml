@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DemirPriceBalance"
         mc:Ignorable="d"
-        Title="MainWindow" Height="322" Width="337">
+        Title="MainWindow" Height="343" Width="337">
   <Grid>
     <GroupBox x:Name="groupBox" Header="Output file" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="63" Width="303">
       <Grid>
@@ -47,6 +47,7 @@
     </GroupBox>
     <ProgressBar x:Name="prbWork" HorizontalAlignment="Left" Height="5" Margin="10,241,0,0" VerticalAlignment="Top" Width="302"/>
     <Button x:Name="btnMerge" Content="Merge" HorizontalAlignment="Left" Margin="238,253,0,0" VerticalAlignment="Top" Width="75" Click="btnMerge_Click"/>
+    <Button x:Name="button" Content="Generate SQL" HorizontalAlignment="Left" Margin="220,280,0,0" VerticalAlignment="Top" Width="92" Click="button_Click"/>
     <Label x:Name="lblState" Content="" HorizontalAlignment="Left" Margin="10,251,0,0" VerticalAlignment="Top"/>
   </Grid>
 </Window>

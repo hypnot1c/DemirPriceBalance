@@ -141,5 +141,20 @@ namespace DemirPriceBalance
         }
       }
     }
+    private void workerSQL_DoWork(object sender, DoWorkEventArgs e)
+    {
+      var parameters = new Dictionary<string, object> { { "pageName", "Шины" }, { "id", 1 }, { "price", 16 }, { "count", 15 } };
+      var uni = ExcelReader.readExcel((string)e.Argument, parameters);
+      var res = uni.Where(x => Int32.Parse(x.Value[2]) > 3).Select(x => String.Concat("UPDATE `oc_product` SET `quantity` = ", x.Value[2], ", `price` = ", x.Value[1], " WHERE `sku` = \"", x.Key, "\""));
+      File.WriteAllLines(@"C:\Users\hypnotic\Documents\GitHub\DemirPriceBalance\DemirPriceBalance\docs\query.sql", res);
+    }
+    private void button_Click(object sender, RoutedEventArgs e)
+    {
+      prbWork.IsIndeterminate = true;
+      var wrk = new BackgroundWorker();
+      wrk.DoWork += workerSQL_DoWork;
+      wrk.RunWorkerCompleted += worker_RunWorkerCompleted;
+      wrk.RunWorkerAsync(txtDemirTires.Text);
+    }
   }
 }

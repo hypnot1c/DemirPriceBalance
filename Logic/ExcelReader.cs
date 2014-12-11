@@ -43,8 +43,10 @@ namespace DemirPriceBalance.Logic
           var key = i.Cell(_clmnIdInd).RichText.Text;
           if (!goods.ContainsKey(key))
           {
-            var _count = ExcelReader.GetProductCount(i.Cell(_clmnCntInd).RichText.Text);
-            goods.Add(key, new string[] { i.RowNumber().ToString(), i.Cell(_clmnPriceInd).RichText.Text, _count == 0 ? String.Empty : _count.ToString() });
+            var _value = i.Cell(_clmnCntInd).ValueCached == null ? i.Cell(_clmnCntInd).Value.ToString() : i.Cell(_clmnCntInd).ValueCached;
+            var _price = i.Cell(_clmnPriceInd).ValueCached == null ? i.Cell(_clmnPriceInd).Value.ToString() : i.Cell(_clmnPriceInd).ValueCached;
+            var _count = ExcelReader.GetProductCount(_value);
+            goods.Add(key, new string[] { i.RowNumber().ToString(), _price, _count.ToString() });
           }
           else
             Debug.WriteLine(key);
@@ -83,9 +85,8 @@ namespace DemirPriceBalance.Logic
             {
               var vls = data[i.Key];
               wrs.Cell(i.Value, _clmnPriceInd).Value = vls[1];
-              int count = 0;
-              var isNum = Int32.TryParse(vls[2], out count);
-              wrs.Cell(i.Value, _clmnCntInd).Value = isNum ? (object)count : (object)String.Empty;
+              int count = Int32.Parse(vls[2]);
+              wrs.Cell(i.Value, _clmnCntInd).Value = count != 0 ? (object)count : (object)String.Empty;
             }
           }
         }
