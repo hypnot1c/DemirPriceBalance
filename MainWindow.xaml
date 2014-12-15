@@ -5,49 +5,74 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DemirPriceBalance"
         mc:Ignorable="d"
-        Title="MainWindow" Height="343" Width="337">
-  <Grid>
-    <GroupBox x:Name="groupBox" Header="Output file" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="63" Width="303">
-      <Grid>
-        <TextBox x:Name="txtDemirTires" HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" TextWrapping="NoWrap" Text="Select output file..." VerticalAlignment="Top" Width="240"/>
-        <Button x:Name="btnDemirTires" HorizontalAlignment="Right" Margin="0,10,10,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
-          <StackPanel>
-            <Image Source="{StaticResource  ResourceKey=upload}" />
-          </StackPanel>
-        </Button>
-      </Grid>
-    </GroupBox>
-    <GroupBox x:Name="groupBox1" Header="Input files" HorizontalAlignment="Left" Margin="10,78,0,0" VerticalAlignment="Top" Height="158" Width="302">
-      <Grid>
-        <TextBox x:Name="txtDemirTiresSrc" HorizontalAlignment="Left" Height="23" Margin="10,7,0,0" TextWrapping="NoWrap" Text="Select summary file..." VerticalAlignment="Top" Width="240"/>
-        <Button x:Name="btnDemirTiresSrc" HorizontalAlignment="Left" Margin="255,7,0,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
-          <StackPanel>
-            <Image Source="{StaticResource  ResourceKey=upload}" />
-          </StackPanel>
-        </Button>
-        <TextBox x:Name="txtShinService" HorizontalAlignment="Left" Height="23" Margin="10,38,0,0" TextWrapping="NoWrap" Text="Select Шинсервис file..." VerticalAlignment="Top" Width="240"/>
-        <Button x:Name="btnShinService" HorizontalAlignment="Left" Margin="255,38,0,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
-          <StackPanel>
-            <Image Source="{StaticResource  ResourceKey=upload}" />
-          </StackPanel>
-        </Button>
-        <TextBox x:Name="txtUnipol" HorizontalAlignment="Left" Height="23" Margin="10,71,0,0" TextWrapping="NoWrap" Text="Select Юнипол file..." VerticalAlignment="Top" Width="240"/>
-        <Button x:Name="btnUnipol" HorizontalAlignment="Left" Margin="256,71,0,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
-          <StackPanel>
-            <Image Source="{StaticResource  ResourceKey=upload}" />
-          </StackPanel>
-        </Button>
-        <TextBox x:Name="txtSaRu" HorizontalAlignment="Left" Height="23" Margin="10,102,0,0" TextWrapping="NoWrap" Text="Select Са.ру file..." VerticalAlignment="Top" Width="240"/>
-        <Button x:Name="btnSaRu" HorizontalAlignment="Left" Margin="256,102,0,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
-          <StackPanel>
-            <Image Source="{StaticResource  ResourceKey=upload}" />
-          </StackPanel>
-        </Button>
-      </Grid>
-    </GroupBox>
-    <ProgressBar x:Name="prbWork" HorizontalAlignment="Left" Height="5" Margin="10,241,0,0" VerticalAlignment="Top" Width="302"/>
-    <Button x:Name="btnMerge" Content="Merge" HorizontalAlignment="Left" Margin="238,253,0,0" VerticalAlignment="Top" Width="75" Click="btnMerge_Click"/>
-    <Button x:Name="button" Content="Generate SQL" HorizontalAlignment="Left" Margin="220,280,0,0" VerticalAlignment="Top" Width="92" Click="button_Click"/>
-    <Label x:Name="lblState" Content="" HorizontalAlignment="Left" Margin="10,251,0,0" VerticalAlignment="Top"/>
-  </Grid>
+        Title="MainWindow" Height="358.222" Width="342.074">
+    <Grid>
+        <GroupBox x:Name="groupBox" Header="Output file" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="63" Width="312">
+            <Grid>
+                <TextBox x:Name="txtDemirTires" HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" TextWrapping="NoWrap" Text="Select output file..." VerticalAlignment="Top" Width="240"/>
+                <Button x:Name="btnDemirTires" HorizontalAlignment="Right" Margin="0,10,10,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
+                    <StackPanel>
+                        <Image Source="{StaticResource  ResourceKey=upload}" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </GroupBox>
+        <ProgressBar x:Name="prbWork" HorizontalAlignment="Left" Height="5" Margin="10,78,0,0" VerticalAlignment="Top" Width="312"/>
+        <TabControl HorizontalAlignment="Left" Height="224" Margin="10,94,0,0" VerticalAlignment="Top" Width="312">
+            <TabItem Header="Balance">
+                <Grid Background="#FFE5E5E5">
+                    <GroupBox x:Name="groupBox1" Header="Input files" HorizontalAlignment="Left" VerticalAlignment="Top" Height="158" Width="302">
+                        <Grid>
+                            <TextBox x:Name="txtDemirTiresSrc" HorizontalAlignment="Left" Height="23" Margin="10,7,0,0" TextWrapping="NoWrap" Text="Select summary file..." VerticalAlignment="Top" Width="240"/>
+                            <Button x:Name="btnDemirTiresSrc" HorizontalAlignment="Left" Margin="255,7,0,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
+                                <StackPanel>
+                                    <Image Source="{StaticResource  ResourceKey=upload}" />
+                                </StackPanel>
+                            </Button>
+                            <TextBox x:Name="txtShinService" HorizontalAlignment="Left" Height="23" Margin="10,38,0,0" TextWrapping="NoWrap" Text="Select Шинсервис file..." VerticalAlignment="Top" Width="240"/>
+                            <Button x:Name="btnShinService" HorizontalAlignment="Left" Margin="255,38,0,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
+                                <StackPanel>
+                                    <Image Source="{StaticResource  ResourceKey=upload}" />
+                                </StackPanel>
+                            </Button>
+                            <TextBox x:Name="txtUnipol" HorizontalAlignment="Left" Height="23" Margin="10,71,0,0" TextWrapping="NoWrap" Text="Select Юнипол file..." VerticalAlignment="Top" Width="240"/>
+                            <Button x:Name="btnUnipol" HorizontalAlignment="Left" Margin="256,71,0,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
+                                <StackPanel>
+                                    <Image Source="{StaticResource  ResourceKey=upload}" />
+                                </StackPanel>
+                            </Button>
+                            <TextBox x:Name="txtSaRu" HorizontalAlignment="Left" Height="23" Margin="10,102,0,0" TextWrapping="NoWrap" Text="Select Са.ру file..." VerticalAlignment="Top" Width="240"/>
+                            <Button x:Name="btnSaRu" HorizontalAlignment="Left" Margin="256,102,0,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
+                                <StackPanel>
+                                    <Image Source="{StaticResource  ResourceKey=upload}" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </GroupBox>
+                    <Button x:Name="btnMerge" Content="Merge" HorizontalAlignment="Left" Margin="217,163,0,0" VerticalAlignment="Top" Width="75" Click="btnMerge_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="SQL">
+                <Grid Background="#FFE5E5E5">
+                    <GroupBox x:Name="grpSQL" Header="Input files" HorizontalAlignment="Left" VerticalAlignment="Top" Height="63" Width="302">
+                        <Grid>
+                            <TextBox x:Name="txtSQLfile" HorizontalAlignment="Left" Height="23" Margin="10,7,0,0" TextWrapping="NoWrap" Text="Select summary file..." VerticalAlignment="Top" Width="240"/>
+                            <Button x:Name="btnSQLfile" HorizontalAlignment="Left" Margin="255,7,0,0" VerticalAlignment="Top" Width="24" Height="24" Click="btnSelect_Click">
+                                <StackPanel>
+                                    <Image Source="{StaticResource  ResourceKey=upload}" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </GroupBox>
+                    <Button x:Name="button" Content="Generate SQL" HorizontalAlignment="Left" Margin="200,68,0,0" VerticalAlignment="Top" Width="92" Click="button_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="YML">
+                <Grid Background="#FFE5E5E5">
+                    
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Label x:Name="lblState" Content="" HorizontalAlignment="Left" Margin="10,251,0,0" VerticalAlignment="Top"/>
+    </Grid>
 </Window>

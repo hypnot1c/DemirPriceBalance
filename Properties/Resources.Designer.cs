@@ -61,7 +61,7 @@ namespace DemirPriceBalance.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ../../docs/DEMIR шины и диски 20.10.2014.xlsx.
+        ///   Looks up a localized string similar to ../../docs/DEMIR_Disks_and_Tires_src.xlsx.
         /// </summary>
         internal static string demirTiresFile {
             get {
@@ -88,7 +88,7 @@ namespace DemirPriceBalance.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ../../docs/v8_2BA4_378.xlsx.
+        ///   Looks up a localized string similar to ../../docs/Шинсервис.xlsx.
         /// </summary>
         internal static string shinServiceFile {
             get {
