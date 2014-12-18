@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE yml_catalog SYSTEM "shops.dtd">
+
+<yml_catalog date="">
+  <shop>
+    <name>Demir Шины и Диски</name>
+    <company>Продажа шин и дисков для автомобилей</company>
+    <url>http://demirshinidiski.ru/</url>
+    <platform>OpenCart</platform>
+    <version>2.0</version>
+    <agency>FreeLance</agency>
+    <email>ahmed_@mail.ru</email>
+    <currencies>
+      <currency id="RUR" rate="1"/>
+    </currencies>
+    <categories>
+
+    </categories>
+    <cpa>0</cpa>
+    <local_delivery_cost>300</local_delivery_cost>
+    <offers>
+
+    </offers>
+  </shop>
+</yml_catalog>
