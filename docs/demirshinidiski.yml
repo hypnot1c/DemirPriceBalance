@@ -14,7 +14,8 @@
       <currency id="RUR" rate="1"/>
     </currencies>
     <categories>
-
+      <category>Шины</category>
+      <category>Диски</category>
     </categories>
     <cpa>0</cpa>
     <local_delivery_cost>300</local_delivery_cost>

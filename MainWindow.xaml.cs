@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -13,11 +14,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using Microsoft.Win32;
+
+using ClosedXML;
+using ClosedXML.Excel;
 //using System.Windows.Shapes;
 
 using DemirPriceBalance.Logic;
-using Microsoft.Win32;
-using System.Diagnostics;
 
 namespace DemirPriceBalance
 {
@@ -159,6 +162,36 @@ namespace DemirPriceBalance
       wrk.DoWork += workerSQL_DoWork;
       wrk.RunWorkerCompleted += worker_RunWorkerCompleted;
       wrk.RunWorkerAsync(txtDemirTires.Text);
+    }
+
+    private void btnGenYML_Click(object sender, RoutedEventArgs e)
+    {
+      var offers = new List<Offer>();
+      using (var xls = new XLWorkbook(txtDemirTires.Text))
+      {
+        var sheet = xls.Worksheet("Шины");
+        for(var i = 4; i <= sheet.RowCount(); i++)
+        {
+          var count = sheet.Cell(i, 15).ValueCached == null ? sheet.Cell(i, 15).Value.ToString() : sheet.Cell(i, 15).ValueCached;
+
+          var price = sheet.Cell(i, 16).ValueCached == null ? sheet.Cell(i, 16).Value.ToString() : sheet.Cell(i, 16).ValueCached;
+          offers.Add(new Offer(
+                         OfferType.vendorModel,
+                         ExcelReader.GetProductCount(count) > 3 ? true : false,
+                         String.Empty,
+                         price,
+                         "RUR",
+                         1,
+                         String.Empty,
+                         String.Empty,
+                         sheet.Cell(i, 2).Value.ToString(),
+                         sheet.Cell(i, 3).Value.ToString()
+                         ));
+        }
+      }
+      GC.Collect();
+      var yml = new YML(@"C:\Users\hypnotic\Documents\GitHub\DemirPriceBalance\DemirPriceBalance\docs\demirshinidiski.yml", @"C:\Users\hypnotic\Documents\GitHub\DemirPriceBalance\DemirPriceBalance\docs\demirshinidiski_res.yml");
+      yml.writeOffers(offers.ToArray());
     }
   }
 }

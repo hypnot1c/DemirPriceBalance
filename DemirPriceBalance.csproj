@@ -69,6 +69,7 @@
     </Compile>
     <Compile Include="Logic\ExcelReader.cs" />
     <Compile Include="Logic\Offer.cs" />
+    <Compile Include="Logic\Shop.cs" />
     <Compile Include="Logic\YML.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

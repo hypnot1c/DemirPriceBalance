@@ -79,7 +79,7 @@
               </Button>
             </Grid>
           </GroupBox>
-          <Button x:Name="btnGenYML" Content="Generate YML" HorizontalAlignment="Left" Margin="200,68,0,0" VerticalAlignment="Top" Width="92" Click="button_Click"/>
+          <Button x:Name="btnGenYML" Content="Generate YML" HorizontalAlignment="Left" Margin="200,68,0,0" VerticalAlignment="Top" Width="92" Click="btnGenYML_Click"/>
         </Grid>
       </TabItem>
     </TabControl>
