@@ -83,6 +83,6 @@
         </Grid>
       </TabItem>
     </TabControl>
-    <Label x:Name="lblState" Content="" HorizontalAlignment="Left" Margin="10,251,0,0" VerticalAlignment="Top"/>
+    <Label x:Name="lblState" Content="" HorizontalAlignment="Left" Margin="10,280,0,0" VerticalAlignment="Top"/>
   </Grid>
 </Window>

@@ -123,23 +123,26 @@ namespace DemirPriceBalance
       var btnSrc = (Button)sender;
       var dlg = new OpenFileDialog();
       dlg.DefaultExt = "xlsx";
-      dlg.Filter = "Excel workbook|*.xlsx";
+      dlg.Filter = "Excel workbook|*.xlsx;*.xlsm";
       var res = dlg.ShowDialog();
       if (res.HasValue && res.Value)
       {
         switch(btnSrc.Name)
         {
-          case "txtDemirTires":
-            txtDemirTires.Text = dlg.FileName;
+          case "btnDemirTiresSrc":
+            txtDemirTiresSrc.Text = dlg.FileName;
             break;
-          case "txtShinService":
+          case "btnShinService":
             txtShinService.Text = dlg.FileName;
             break;
-          case "txtUnipol":
+          case "btnUnipol":
             txtUnipol.Text = dlg.FileName;
             break;
-          case "txtSaRu":
+          case "btnSaRu":
             txtSaRu.Text = dlg.FileName;
+            break;
+          case "btnSQLfile":
+            txtSQLfile.Text = dlg.FileName;
             break;
         }
       }
@@ -150,10 +153,13 @@ namespace DemirPriceBalance
       var uni = ExcelReader.readExcel((string)e.Argument, parameters);
       parameters = new Dictionary<string, object> { { "pageName", "Диски реплика" }, { "id", 1 }, { "price", 13 }, { "count", 12 } };
       var sa = ExcelReader.readExcel((string)e.Argument, parameters);
-      var res = uni.Where(x => Int32.Parse(x.Value[2]) > 3).Select(x => String.Concat("INSERT INTO `tmp_Import` (`id`, `price`, `count`) VALUES (\"", x.Key, "\", ", x.Value[1], ", ", x.Value[2], ");"));
-      var res2 = sa.Where(x => Int32.Parse(x.Value[2]) > 3).Select(x => String.Concat("INSERT INTO `tmp_Import` (`id`, `price`, `count`) VALUES (\"", x.Key, "\", ", x.Value[1], ", ", x.Value[2], ");"));
+      parameters = new Dictionary<string, object> { { "pageName", "Диски тюнинг" }, { "id", 1 }, { "price", 13 }, { "count", 12 } };
+      var sa1 = ExcelReader.readExcel((string)e.Argument, parameters);
+      var res = uni.Select(x => String.Concat("INSERT INTO `tmp_Import` (`id`, `price`, `count`) VALUES (\"", x.Key, "\", ", x.Value[1], ", ", x.Value[2], ");"));
+      var res2 = sa.Select(x => String.Concat("INSERT INTO `tmp_Import` (`id`, `price`, `count`) VALUES (\"", x.Key, "\", ", x.Value[1], ", ", x.Value[2], ");"));
+      var res3 = sa1.Select(x => String.Concat("INSERT INTO `tmp_Import` (`id`, `price`, `count`) VALUES (\"", x.Key, "\", ", x.Value[1], ", ", x.Value[2], ");"));
 
-      File.WriteAllLines(@"C:\Users\hypnotic\Documents\GitHub\DemirPriceBalance\DemirPriceBalance\docs\query.sql", res.Concat(res2));
+      File.WriteAllLines(@"C:\Users\hypnotic\Documents\GitHub\DemirPriceBalance\DemirPriceBalance\docs\query.sql", res.Concat(res2).Concat(res3));
     }
     private void button_Click(object sender, RoutedEventArgs e)
     {
@@ -161,7 +167,7 @@ namespace DemirPriceBalance
       var wrk = new BackgroundWorker();
       wrk.DoWork += workerSQL_DoWork;
       wrk.RunWorkerCompleted += worker_RunWorkerCompleted;
-      wrk.RunWorkerAsync(txtDemirTires.Text);
+      wrk.RunWorkerAsync(txtSQLfile.Text);
     }
 
     private void btnGenYML_Click(object sender, RoutedEventArgs e)
