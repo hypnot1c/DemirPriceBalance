@@ -87,8 +87,8 @@ namespace DemirPriceBalance
       var uni = ExcelReader.readExcel(args[0], parameters);
       wrk.ReportProgress(2);
       parameters["id"] = 1;
-      parameters["price"] = 8;
-      parameters["count"] = 9;
+      parameters["price"] = 9;
+      parameters["count"] = 10;
       var shin = ExcelReader.readExcel(args[1], parameters);
       wrk.ReportProgress(3);
       parameters["pageName"] = "Диски";

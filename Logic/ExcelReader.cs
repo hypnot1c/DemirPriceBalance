@@ -40,16 +40,20 @@ namespace DemirPriceBalance.Logic
         var goods = new Dictionary<string, string[]>(res.Count());
         foreach (var i in res)
         {
-          var key = i.Cell(_clmnIdInd).RichText.Text;
-          if (!goods.ContainsKey(key))
+          var keys = i.Cell(_clmnIdInd).RichText.Text.Split(',');
+          foreach (var key in keys)
           {
-            var _value = i.Cell(_clmnCntInd).ValueCached == null ? i.Cell(_clmnCntInd).Value.ToString() : i.Cell(_clmnCntInd).ValueCached;
-            var _price = i.Cell(_clmnPriceInd).ValueCached == null ? i.Cell(_clmnPriceInd).Value.ToString() : i.Cell(_clmnPriceInd).ValueCached;
-            var _count = ExcelReader.GetProductCount(_value);
-            goods.Add(key, new string[] { i.RowNumber().ToString(), _price, _count.ToString() });
+            if (!goods.ContainsKey(key))
+            {
+              var _value = i.Cell(_clmnCntInd).ValueCached == null ? i.Cell(_clmnCntInd).Value.ToString() : i.Cell(_clmnCntInd).ValueCached;
+              var _price = i.Cell(_clmnPriceInd).ValueCached == null ? i.Cell(_clmnPriceInd).Value.ToString() : i.Cell(_clmnPriceInd).ValueCached;
+              var _count = ExcelReader.GetProductCount(_value);
+              var _price1 = ExcelReader.GetProductCount(_price);
+              goods.Add(key, new string[] { i.RowNumber().ToString(), _price1.ToString(), _count.ToString() });
+            }
+            else
+              Debug.WriteLine(key);
           }
-          else
-            Debug.WriteLine(key);
         }
         return goods;
       }
