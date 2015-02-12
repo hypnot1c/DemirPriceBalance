@@ -59,50 +59,5 @@ namespace DemirPriceBalance.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to ../../docs/DEMIR_Disks_and_Tires_src.xlsx.
-        /// </summary>
-        internal static string demirTiresFile {
-            get {
-                return ResourceManager.GetString("demirTiresFile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to ../../docs/DEMIR_Tires_and_Disks.xlsx.
-        /// </summary>
-        internal static string demirTiresInFile {
-            get {
-                return ResourceManager.GetString("demirTiresInFile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to ../../docs/Са.ру.xlsm.
-        /// </summary>
-        internal static string saRuFile {
-            get {
-                return ResourceManager.GetString("saRuFile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to ../../docs/Шинсервис.xlsx.
-        /// </summary>
-        internal static string shinServiceFile {
-            get {
-                return ResourceManager.GetString("shinServiceFile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to ../../docs/Юнипол.xlsx.
-        /// </summary>
-        internal static string unipolFile {
-            get {
-                return ResourceManager.GetString("unipolFile", resourceCulture);
-            }
-        }
     }
 }

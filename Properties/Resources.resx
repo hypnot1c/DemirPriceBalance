@@ -117,19 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="demirTiresFile" xml:space="preserve">
-    <value>../../docs/DEMIR_Disks_and_Tires_src.xlsx</value>
-  </data>
-  <data name="demirTiresInFile" xml:space="preserve">
-    <value>../../docs/DEMIR_Tires_and_Disks.xlsx</value>
-  </data>
-  <data name="saRuFile" xml:space="preserve">
-    <value>../../docs/Са.ру.xlsm</value>
-  </data>
-  <data name="shinServiceFile" xml:space="preserve">
-    <value>../../docs/Шинсервис.xlsx</value>
-  </data>
-  <data name="unipolFile" xml:space="preserve">
-    <value>../../docs/Юнипол.xlsx</value>
-  </data>
 </root>
