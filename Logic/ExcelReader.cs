@@ -8,6 +8,7 @@ using System.IO;
 
 using ClosedXML;
 using ClosedXML.Excel;
+using DemirPriceBalance.Logic;
 
 namespace DemirPriceBalance.Logic
 {
@@ -26,37 +27,18 @@ namespace DemirPriceBalance.Logic
       return _result;
     }
 
-    public static Dictionary<string, string[]> readExcel(string file, Dictionary<string, object> parameters)
+    public static List<Dictionary<string, object>> readPricelist(string file, IPricelistReader reader)
     {
-      var _pageName = parameters["pageName"].ToString();
-      var _clmnIdInd = parameters["id"].CastTo<int>();
-      var _clmnPriceInd = parameters["price"].CastTo<int>();
-      var _clmnCntInd = parameters["count"].CastTo<int>();
+      var result = new List<Dictionary<string, object>>();
       using (var xls = new XLWorkbook(Path.GetFullPath(file)))
       {
-        var wrs = xls.Worksheet(_pageName);
-
-        var res = wrs.Rows().Where(x => !String.IsNullOrEmpty(x.Cell(_clmnIdInd).Value.CastTo<String>()) && x.Cell(_clmnIdInd).Value.CastTo<String>() != "Код производителя");
-        var goods = new Dictionary<string, string[]>(res.Count());
-        foreach (var i in res)
+        var wrs = xls.Worksheet(reader.getSheetName());
+        for (int i = 4074; i < 8255; i++)
         {
-          var keys = i.Cell(_clmnIdInd).RichText.Text.Split(',');
-          foreach (var key in keys)
-          {
-            if (!goods.ContainsKey(key))
-            {
-              var _value = i.Cell(_clmnCntInd).ValueCached == null ? i.Cell(_clmnCntInd).Value.ToString() : i.Cell(_clmnCntInd).ValueCached;
-              var _price = i.Cell(_clmnPriceInd).ValueCached == null ? i.Cell(_clmnPriceInd).Value.ToString() : i.Cell(_clmnPriceInd).ValueCached;
-              var _count = ExcelReader.GetProductCount(_value);
-              var _price1 = ExcelReader.GetProductCount(_price);
-              goods.Add(key, new string[] { i.RowNumber().ToString(), _price1.ToString(), _count.ToString() });
-            }
-            else
-              Debug.WriteLine(key);
-          }
+          result.Add(reader.readProduct(wrs.Row(i)));
         }
-        return goods;
       }
+      return result;
     }
 
     public static XLWorkbook writeExcel(string file, Dictionary<string, string[]> data, Dictionary<string, object[]> parameters)

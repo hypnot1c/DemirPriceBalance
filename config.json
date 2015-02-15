@@ -1,25 +1,26 @@
 ﻿{
-  outputFile: {
-    path: "../../docs/DEMIR_Tires_and_Disks.xlsx"
+  'outputFile': {
+    'path': 'docs/DEMIR_Tires_and_Disks.xlsx'
   },
-  inputFile: {
-    provider: "Юнипол",
-    srcFileConfig: {
-      path: "../../docs/Юнипол.xlsx",
-      sheet: "TDSheet",
-      productId: 1,
-      price: 2,
-      quantity: 3,
-      rows: [
-        { start: 1, end: 2 },
-        { start: 5, end: 6 },
-      ]
-    },
-    trgFileConfig: {
-      sheet: "Шины",
-      productId: 1,
-      price: 2,
-      quantity: 3
+  'inputFiles': [
+    {
+      'provider': 'Шинсервис',
+      'srcFileConfig': {
+        'path': 'docs/Шинсервис.xlsx',
+        'sheet': 'TDSheet',
+        'productId': 1,
+        'price': 9,
+        'quantity': 10,
+        'rows': [
+          { 'start': 4075, 'end': 8255 }
+        ]
+      },
+      'trgFileConfig': {
+        'sheet': 'Шины',
+        'productId': 1,
+        'price': 2,
+        'quantity': 3
+      }
     }
-  },
+  ]
 }
