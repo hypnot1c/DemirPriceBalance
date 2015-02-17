@@ -70,11 +70,11 @@ namespace DemirPriceBalance
       wrk.DoWork += worker_DoWork;
       wrk.ProgressChanged += worker_ProgressChanged;
       wrk.RunWorkerCompleted += worker_RunWorkerCompleted;
+      var inpts = new List<string>();
       foreach (var cnt in grdInputFiles.Children)
-      {
         if (cnt.GetType().Name == "TextBox")
-          wrk.RunWorkerAsync(((TextBox)cnt).Text);
-      }
+          inpts.Add(((TextBox)cnt).Text);
+      wrk.RunWorkerAsync(inpts);
     }
 
     private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -108,42 +108,13 @@ namespace DemirPriceBalance
     {
       var wrk = (BackgroundWorker)sender;
       wrk.ReportProgress(1);
-      var args = (string)e.Argument;
-      var shin = ExcelReader.readPricelist(args, new ShinServiceReader(Config.data["inputFiles"].First["srcFileConfig"]));
+      var args = (List<string>)e.Argument;
+      var files = Config.data["inputFiles"];
+      var shin = ExcelReader.readPricelist(args.First(), new ShinServiceReader(Config.data["inputFiles"].First["srcFileConfig"]));
+      var uni = ExcelReader.readPricelist(args.ElementAt(1), new UnipolReader(Config.data["inputFiles"].ElementAt(1)["srcFileConfig"]));
       Debug.WriteLine(shin.Count);
+      Debug.WriteLine(uni.Count);
       wrk.ReportProgress(5);
-      //var parameters = new Dictionary<string, object> { { "pageName", "TDSheet" }, { "id", 12 }, { "price", 14 }, { "count", 15 } };
-      //var uni = ExcelReader.readExcel(args[0], parameters);
-      //wrk.ReportProgress(2);
-      //parameters["id"] = 1;
-      //parameters["price"] = 9;
-      //parameters["count"] = 10;
-      //var shin = ExcelReader.readExcel(args[1], parameters);
-      //wrk.ReportProgress(3);
-      //parameters["pageName"] = "Диски";
-      //parameters["id"] = 1;
-      //parameters["price"] = 6;
-      //parameters["count"] = 3;
-      //var sa = ExcelReader.readExcel(args[2], parameters);
-      //wrk.ReportProgress(4);
-      //try
-      //{
-      //  var pars = new Dictionary<string, object[]> { { "Шины", new object[] { 1, 24, 23 } } };
-      //  using (var xls = ExcelReader.writeExcel(args[3], uni, pars))
-      //  {
-      //    pars = new Dictionary<string, object[]> { { "Шины", new object[] { 1, 26, 25 } } };
-      //    var xls1 = ExcelReader.writeExcel(xls, shin, pars);
-      //    pars = new Dictionary<string, object[]> { { "Диски реплика", new object[] { 1, 20, 19 } } };
-      //    xls1 = ExcelReader.writeExcel(xls, sa, pars);
-      //    xls1.SaveAs(args[4]);
-      //  }
-      //}
-      //catch (Exception ex)
-      //{
-      //  MessageBox.Show("Error saving file", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-      //}
-      //wrk.ReportProgress(5);
-      //GC.Collect();
     }
 
 

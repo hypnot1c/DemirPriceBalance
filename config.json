@@ -21,6 +21,25 @@
         'price': 2,
         'quantity': 3
       }
+    },
+    {
+      'provider': 'Юнипол',
+      'srcFileConfig': {
+        'path': 'docs/Юнипол.xlsx',
+        'sheet': 'TDSheet',
+        'productId': 12,
+        'price': 14,
+        'quantity': 16,
+        'rows': [
+          { 'start': 114, 'end': 4427 }
+        ]
+      },
+      'trgFileConfig': {
+        'sheet': 'Шины',
+        'productId': 1,
+        'price': 2,
+        'quantity': 3
+      }
     }
   ]
 }

@@ -14,29 +14,17 @@ namespace DemirPriceBalance.Logic
 {
   class ExcelReader
   {
-    public static int GetProductCount(string sourceValue)
-    {
-      var _value = sourceValue.ToLower().Trim();
-      int _result = 0;
-      var isNum = Int32.TryParse(_value, out _result);
-      if (!isNum)
-      {
-        if (_value == "да" || _value.StartsWith("более"))
-          _result = 20;
-      }
-      return _result;
-    }
-
     public static List<Dictionary<string, object>> readPricelist(string file, IPricelistReader reader)
     {
       var result = new List<Dictionary<string, object>>();
       using (var xls = new XLWorkbook(Path.GetFullPath(file)))
       {
         var wrs = xls.Worksheet(reader.getSheetName());
-        for (int i = 4074; i < 8255; i++)
-        {
+        var config = reader.getParameters();
+        int startRow = config["rows"].First.Value<int>("start");
+        int endRow = config["rows"].First.Value<int>("end");
+        for (int i = startRow; i < endRow; i++)
           result.Add(reader.readProduct(wrs.Row(i)));
-        }
       }
       return result;
     }
