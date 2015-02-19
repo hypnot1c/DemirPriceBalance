@@ -20,7 +20,7 @@ namespace DemirPriceBalance.Logic
     public Dictionary<string, object> readProduct(IXLRow row)
     {
       var result = new Dictionary<string, object>();
-      if (String.IsNullOrEmpty(this.getProductId(row))) return result;
+      //if (String.IsNullOrEmpty(this.getProductId(row))) return result;
       result["productId"] = this.getProductId(row);
       result["price"] = this.getProductPrice(row);
       result["count"] = this.getProductCount(row);

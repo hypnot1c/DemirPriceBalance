@@ -112,8 +112,11 @@ namespace DemirPriceBalance
       var files = Config.data["inputFiles"];
       var shin = ExcelReader.readPricelist(args.First(), new ShinServiceReader(Config.data["inputFiles"].First["srcFileConfig"]));
       var uni = ExcelReader.readPricelist(args.ElementAt(1), new UnipolReader(Config.data["inputFiles"].ElementAt(1)["srcFileConfig"]));
-      Debug.WriteLine(shin.Count);
-      Debug.WriteLine(uni.Count);
+      var xls = ExcelReader.writePriceList(Config.data["outputFile"].Value<string>("path"), shin, Config.data["inputFiles"].First["trgFileConfig"]);
+      xls = ExcelReader.writePriceList(xls, uni, Config.data["inputFiles"].ElementAt(1)["trgFileConfig"]);
+      xls.Save();
+      //Debug.WriteLine(shin.Count);
+      //Debug.WriteLine(uni.Count);
       wrk.ReportProgress(5);
     }
 

@@ -9,14 +9,15 @@ using System.IO;
 using ClosedXML;
 using ClosedXML.Excel;
 using DemirPriceBalance.Logic;
+using Newtonsoft.Json.Linq;
 
 namespace DemirPriceBalance.Logic
 {
   class ExcelReader
   {
-    public static List<Dictionary<string, object>> readPricelist(string file, IPricelistReader reader)
+    public static Dictionary<string, Dictionary<string, object>> readPricelist(string file, IPricelistReader reader)
     {
-      var result = new List<Dictionary<string, object>>();
+      var result = new Dictionary<string, Dictionary<string, object>>();
       using (var xls = new XLWorkbook(Path.GetFullPath(file)))
       {
         var wrs = xls.Worksheet(reader.getSheetName());
@@ -24,9 +25,38 @@ namespace DemirPriceBalance.Logic
         int startRow = config["rows"].First.Value<int>("start");
         int endRow = config["rows"].First.Value<int>("end");
         for (int i = startRow; i < endRow; i++)
-          result.Add(reader.readProduct(wrs.Row(i)));
+        {
+          var prd = reader.readProduct(wrs.Row(i));
+          result[prd["productId"].ToString()] = prd;
+        }
       }
       return result;
+    }
+
+    public static XLWorkbook writePriceList(string file, Dictionary<string, Dictionary<string, object>> data, JToken parameters)
+    {
+      using (var xls = new XLWorkbook(Path.GetFullPath(file), XLEventTracking.Disabled))
+      {
+        return ExcelReader.writePriceList(xls, data, parameters);
+      }
+    }
+    public static XLWorkbook writePriceList(XLWorkbook xls, Dictionary<string, Dictionary<string, object>> data, JToken parameters)
+    {
+      var goods = new Dictionary<string, int>();
+      var wrs = xls.Worksheet(parameters.Value<string>("sheet"));
+      
+      var startRow = parameters["rows"].First.Value<int>("start");
+      var endRow = parameters["rows"].First.Value<int>("end");
+      for (var i = startRow; i <= endRow; i++)
+      {
+        var id = wrs.Row(i).Cell(parameters.Value<string>("productId")).Value.ToString().Trim();
+        var existed = data.ContainsKey(id);
+        var price = existed ? data[id]["price"] : 0;
+        var quantity = existed ? data[id]["count"] : 0;
+        wrs.Row(i).Cell(parameters.Value<int>("price")).Value = price;
+        wrs.Row(i).Cell(parameters.Value<int>("quantity")).Value = quantity;
+      }
+      return xls;
     }
 
     public static XLWorkbook writeExcel(string file, Dictionary<string, string[]> data, Dictionary<string, object[]> parameters)

@@ -18,8 +18,11 @@
       'trgFileConfig': {
         'sheet': 'Шины',
         'productId': 1,
-        'price': 2,
-        'quantity': 3
+        'price': 26,
+        'quantity': 25,
+        'rows': [
+          { 'start': 4, 'end': 6727 }
+        ]
       }
     },
     {
@@ -37,8 +40,11 @@
       'trgFileConfig': {
         'sheet': 'Шины',
         'productId': 1,
-        'price': 2,
-        'quantity': 3
+        'price': 24,
+        'quantity': 23,
+        'rows': [
+          { 'start': 4, 'end': 6727 }
+        ]
       }
     }
   ]

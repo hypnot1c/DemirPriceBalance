@@ -17,7 +17,7 @@ namespace DemirPriceBalance.Logic
     {
       this.parameters = parameters;
     }
-    public Dictionary<string, object> readProduct(ClosedXML.Excel.IXLRow row)
+    public Dictionary<string, object> readProduct(IXLRow row)
     {
       var result = new Dictionary<string, object>();
       result["productId"] = this.getProductId(row);
@@ -44,7 +44,7 @@ namespace DemirPriceBalance.Logic
     {
       return this.parameters;
     }
-    public string getProductId(ClosedXML.Excel.IXLRow row)
+    public string getProductId(IXLRow row)
     {
       return row.Cell(parameters["productId"].Value<int>()).Value.ToString().Trim();
     }
