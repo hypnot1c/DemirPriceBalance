@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DemirPriceBalance.Logic.Product;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -17,24 +18,25 @@ namespace DemirPriceBalance.Logic
     {
       this.parameters = parameters;
     }
-    public Dictionary<string, object> readProduct(IXLRow row)
+    public Product.Product readProduct(IXLRow row)
     {
-      var result = new Dictionary<string, object>();
-      //if (String.IsNullOrEmpty(this.getProductId(row))) return result;
-      result["productId"] = this.getProductId(row);
-      result["price"] = this.getProductPrice(row);
-      result["count"] = this.getProductCount(row);
+      var result = this.getProductType(row) == ProductType.tyre ? new Tyre() : new Product.Product(); ;
 
-      var pType = this.getProductType(row);
-      if (pType == ProductType.tyre)
-        result["season"] = this.getTyreSeason(row);
-
+      result.Id = this.getProductId(row);
+      result.Price = this.getProductPrice(row);
+      result.Quantity = this.getProductCount(row);
+      
       if (String.IsNullOrEmpty(this.getProductId(row)))
         return result;
 
-      var str = this.parseProduct(row.Cell(11), pType);
+      result.Manufacturer = this.getProductManufacturer(row);
 
-      return result.Union(str).ToDictionary(x => x.Key, x => x.Value);
+      var pType = this.getProductType(row);
+      if (pType == ProductType.tyre)
+        ((Tyre)result).Season = this.getTyreSeason(row);
+
+      var str = this.parseProduct(row.Cell(11), pType, result);
+      return result;
     }
 
     public string getSheetName()
@@ -57,71 +59,42 @@ namespace DemirPriceBalance.Logic
       return this.getTyreSeason(row) == TyreSeason.other ? ProductType.wheel : ProductType.tyre;
     }
 
-    public Dictionary<string, object> parseProduct(IXLCell cell, ProductType productType)
+    public Product.Product parseProduct(IXLCell cell, ProductType productType, Product.Product product)
     {
-      var result = new Dictionary<string, object>();
-      result["productType"] = productType;
       switch (productType)
       {
         case ProductType.tyre:
+          var _prd = (Tyre)product;
           var val = cell.Value.ToString().Trim();
           Regex regex = new Regex(@"[ ]{2,}", RegexOptions.None);
           val = regex.Replace(val, @" ");
-
-          var sb = new StringBuilder();
-          for (int i = 0, j = 0; i < val.Length; i++)
+          var reg = new Regex("[0-9]{1,3}([/][0-9]{2,2}){0,1}([Z]){0,1}[R][0-9]{1,2}([,][0-9]{1,1}){0,1}");
+          if (reg.IsMatch(val))
           {
-            if (val[i] != ' ')
-            {
-              sb.Append(val[i]);
-            }
-            else
-            {
-              switch (j++)
-              {
-                case 0:
-                  var _obj = sb.ToString().Split('R');
-                  var size = _obj[0].Split('/');
-                  result["width"] = size[0];
-                  result["profile"] = size.Length > 1 ? size[1] : null;
-                  result["diameter"] = _obj.Length > 1 ? _obj[1] : null;
-                  break;
-                case 1:
-                  result["speedIndex"] = sb.ToString();
-                  break;
-                case 2:
-                  var modelPart = new StringBuilder();
-                  for (i++; i < val.Length; i++) 
-                  {
-                    if (val[i] == ' ' || (i + 1) == val.Length)
-                    {
-                      if ((i + 1) == val.Length) modelPart.Append(val[i]);
-                      if (modelPart.ToString() == "шип")
-                      {
-                        result["spikes"] = true;
-                        result["model"] = sb.ToString();
-                        break;
-                      }
-                      else
-                      {
-                        sb.Append(" ").Append(modelPart.ToString());
-                        modelPart.Clear();
-                      }
-                    }
-                    else
-                    {
-                      modelPart.Append(val[i]);
-                    }
-                  }
-                  if (i == val.Length && !result.ContainsKey("model")) result["model"] = sb.ToString();
-                  break;
-              }
-              sb.Clear();
-            }
+            var _obj = reg.Match(val).ToString().Split('R');
+            var size = _obj[0].Split('/');
+            _prd.ProfileWidth = size[0];
+            _prd.ProfileHeight = size.Length > 1 ? size[1] : null;
+            _prd.Diameter = _obj.Length > 1 ? _obj[1] : null;
+            val = reg.Replace(val, String.Empty);
           }
+          if (val.IndexOf(" шип ") != -1)
+          {
+            _prd.HasSpikes = true;
+            val = val.Replace(" шип ", String.Empty);
+          }
+          reg = new Regex("[0-9]{1,3}([/][0-9]{1,3}){0,1}[A-Z]");
+          if (reg.IsMatch(val))
+          {
+            var str = reg.Match(val).ToString();
+            _prd.WeightIndex = str.Substring(0, str.Length - 2);
+            _prd.SpeedIndex = str.Last().ToString();
+            val = reg.Replace(val, String.Empty);
+          }
+          _prd.Model = val.Trim();
           break;
       }
-      return result;
+      return product;
     }
 
     public decimal getProductPrice(IXLRow row)
@@ -132,11 +105,12 @@ namespace DemirPriceBalance.Logic
       return price;
     }
 
-    public int getProductCount(IXLRow row)
+    public uint getProductCount(IXLRow row)
     {
-      var value = row.Cell(parameters["quantity"].Value<int>()).Value.ToString().Trim();
-      int count = value.Contains("да") ? 20 : 0;
-      Int32.TryParse(value, out count);
+      var value = row.Cell(parameters["quantity"].Value<int>()).Value.ToString().ToLower().Trim();
+      uint count = 0;
+      if (!UInt32.TryParse(value, out count))
+        count = value.Contains("да") ? 20 : count;
       return count;
     }
 

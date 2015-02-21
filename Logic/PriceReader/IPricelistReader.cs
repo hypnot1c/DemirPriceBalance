@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DemirPriceBalance.Logic.Product;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -8,14 +9,6 @@ using System.Threading.Tasks;
 
 namespace DemirPriceBalance.Logic
 {
-  public enum TyreSeason
-  {
-    summer,
-    winter,
-    all,
-    other
-  }
-
   public enum ProductType
   {
     wheel,
@@ -26,12 +19,12 @@ namespace DemirPriceBalance.Logic
   {
     string getSheetName();
     JToken getParameters();
-    Dictionary<string, object> readProduct(IXLRow row);
+    Product.Product readProduct(IXLRow row);
     string getProductId(IXLRow row);
     ProductType getProductType(IXLRow row);
-    Dictionary<string, object> parseProduct(IXLCell cell, ProductType productType);
+    Product.Product parseProduct(IXLCell cell, ProductType productType, Product.Product product);
     decimal getProductPrice(IXLRow row);
-    int getProductCount(IXLRow row);
+    uint getProductCount(IXLRow row);
     string getProductManufacturer(IXLRow row);
     string getProductModel(IXLRow row);
     TyreSeason getTyreSeason(IXLRow row);

@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DemirPriceBalance.Logic.Product;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DemirPriceBalance.Logic
 {
-  class ShinServiceReader: IPricelistReader
+  class ShinServiceReader : IPricelistReader
   {
     private JToken parameters;
 
@@ -17,28 +18,28 @@ namespace DemirPriceBalance.Logic
     {
       this.parameters = parameters;
     }
-    public Dictionary<string, object> readProduct(IXLRow row)
+    public Product.Product readProduct(IXLRow row)
     {
-      var result = new Dictionary<string, object>();
-      result["productId"] = this.getProductId(row);
-      result["price"] = this.getProductPrice(row);
-      result["count"] = this.getProductCount(row);
-      
+      var result = this.getProductType(row) == ProductType.tyre ? new Tyre() : new Product.Product(); ;
+
+      result.Id = this.getProductId(row);
+      result.Price = this.getProductPrice(row);
+      result.Quantity = this.getProductCount(row);
+
+      if (String.IsNullOrEmpty(this.getProductId(row)))
+        return result;
+
       var pType = this.getProductType(row);
-      if(pType == ProductType.tyre)
-        result["season"] = this.getTyreSeason(row);
-      
-      if(String.IsNullOrEmpty(this.getProductId(row))) 
-          return result;
+      if (pType == ProductType.tyre)
+        ((Tyre)result).Season = this.getTyreSeason(row);
 
-      var str = this.parseProduct(row.Cell(4), pType);
-
-      return result.Union(str).ToDictionary(x => x.Key, x => x.Value);
+      var str = this.parseProduct(row.Cell(4), pType, result);
+      return result;
     }
 
     public string getSheetName()
     {
-        return parameters["sheet"].ToString();
+      return parameters["sheet"].ToString();
     }
     public JToken getParameters()
     {
@@ -54,76 +55,47 @@ namespace DemirPriceBalance.Logic
       return this.getTyreSeason(row) == TyreSeason.other ? ProductType.wheel : ProductType.tyre;
     }
 
-    public Dictionary<string, object> parseProduct(IXLCell cell, ProductType productType)
+    public Product.Product parseProduct(IXLCell cell, ProductType productType, Product.Product product)
     {
-      var result = new Dictionary<string, object>();
-      result["productType"] = productType;
       switch (productType)
       {
         case ProductType.tyre:
+          var _prd = (Tyre)product;
           var val = cell.Value.ToString().Trim();
-          var sb = new StringBuilder();
-          for (int i = 0, j = 0; i < val.Length; i++)
+          var reg = new Regex("[^| 0-9]{1,3}([/][0-9]{1,3}([A-Z]{0,1})){0,1} ");
+          if (reg.IsMatch(val))
           {
-            if (val[i] != ' ')
-            {
-              sb.Append(val[i]);
-            }
-            else
-            {
-              switch (j++)
-              {
-                case 0:
-                  result["manufacturer"] = sb.ToString();
-                  break;
-                case 1:
-                  var _obj = sb.ToString().Split('/');
-                  result["width"] = _obj[0];
-                  result["profile"] = _obj.Length > 1 ? _obj[1] : null;
-                  break;
-                case 2:
-                  result["diameter"] = sb.ToString();
-                  break;
-                case 3:
-                  var reg = new Regex("^([0-9]{1,3}[/]{0,1}){0,1}[0-9]{1,3}[A-Z]$");
-                  var modelPart = new StringBuilder();
-                  for (i++; i < val.Length; i++) {
-                    if (val[i] == ' ' || (i + 1) == val.Length)
-                    {
-                      if ((i + 1) == val.Length) modelPart.Append(val[i]);
-                      if (reg.IsMatch(modelPart.ToString()))
-                      {
-                        result["speedIndex"] = modelPart.ToString();
-                        result["model"] = sb.ToString();
-                        break;
-                      }
-                      else
-                      {
-                        sb.Append(" ").Append(modelPart.ToString());
-                        modelPart.Clear();
-                      }
-                    }
-                    else
-                    {
-                      modelPart.Append(val[i]);
-                    }
-                  }
-                  if (i == val.Length && !result.ContainsKey("model")) result["model"] = sb.ToString();
-                  break;
-                case 4:
-                  result["spikes"] = sb.ToString().ToUpper() == "Ш";
-                  break;
-              }
-              sb.Clear();
-            }
+            var _obj = reg.Match(val).ToString().Split('/');
+            _prd.ProfileWidth = _obj[0];
+            _prd.ProfileHeight = _obj.Length > 1 ? _obj[1] : null;
+            val = reg.Replace(val, String.Empty);
           }
-
+          reg = new Regex("[R]([0-9]{0,2}){0,1}");
+          if (reg.IsMatch(val))
+          {
+            _prd.Diameter = reg.Match(val).ToString().Substring(1);
+            val = reg.Replace(val, String.Empty);
+          }
+          reg = new Regex("[0-9]{1,3}([/][0-9]{1,3}){0,1}[A-Z]");
+          if (reg.IsMatch(val))
+          {
+            var str = reg.Match(val).ToString();
+            _prd.WeightIndex = str.Substring(0, str.Length - 2);
+            _prd.SpeedIndex = str.Last().ToString();
+            val = reg.Replace(val, String.Empty);
+          }
+          if (val.IndexOf(" Ш") != -1)
+          {
+            _prd.HasSpikes = true;
+            val = val.Replace(" Ш", String.Empty);
+          }
+          _prd.Model = val.Trim();
           break;
       }
-      return result;
+      return product;
     }
 
-    public decimal getProductPrice(ClosedXML.Excel.IXLRow row)
+    public decimal getProductPrice(IXLRow row)
     {
       var value = row.Cell(parameters["price"].Value<int>()).Value;
       decimal price = 0;
@@ -131,11 +103,12 @@ namespace DemirPriceBalance.Logic
       return price;
     }
 
-    public int getProductCount(ClosedXML.Excel.IXLRow row)
+    public uint getProductCount(IXLRow row)
     {
-      var value = row.Cell(parameters["quantity"].Value<int>()).Value.ToString().Trim();
-      int count = value.Contains("Более") ? 20 : 0;
-      Int32.TryParse(value, out count);
+      var value = row.Cell(parameters["quantity"].Value<int>()).Value.ToString().ToLower().Trim();
+      uint count = 0;
+      if (!UInt32.TryParse(value, out count))
+        count = value.Contains("более") ? 20 : count;
       return count;
     }
 
@@ -153,12 +126,12 @@ namespace DemirPriceBalance.Logic
       return TyreSeason.other;
     }
 
-    public string getProductManufacturer(ClosedXML.Excel.IXLRow row)
+    public string getProductManufacturer(IXLRow row)
     {
       throw new NotImplementedException();
     }
 
-    public string getProductModel(ClosedXML.Excel.IXLRow row)
+    public string getProductModel(IXLRow row)
     {
       throw new NotImplementedException();
     }

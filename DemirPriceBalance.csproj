@@ -76,6 +76,9 @@
     <Compile Include="Logic\PriceReader\IPricelistReader.cs" />
     <Compile Include="Logic\PriceReader\ShinServiceReader.cs" />
     <Compile Include="Logic\PriceReader\UnipolReader.cs" />
+    <Compile Include="Logic\Product\Product.cs" />
+    <Compile Include="Logic\Product\Tyre.cs" />
+    <Compile Include="Logic\Product\Wheel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
