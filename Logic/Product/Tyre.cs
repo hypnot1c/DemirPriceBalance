@@ -32,9 +32,9 @@ namespace DemirPriceBalance.Logic.Product
       this.HasSpikes = hasSpikes;
     }
 
-    public override object[] ToExcelRow()
+    public override object[] ToExcelRow(int clmnQnty, int clmnPrice)
     {
-      return new object[]
+      var res = new object[]
       {
         this.Id,
         this.Manufacturer,
@@ -46,8 +46,8 @@ namespace DemirPriceBalance.Logic.Product
         this.Diameter,
         this.WeightIndex,
         this.SpeedIndex,
-        this.HasSpikes,
-        this.HasRunFlat,
+        this.HasSpikes ? "Шипы" : String.Empty,
+        this.HasRunFlat ? "RunFlat" : String.Empty,
         null,
         null,
         null,
@@ -60,8 +60,8 @@ namespace DemirPriceBalance.Logic.Product
         null,
         null,
         null,
-        this.Quantity,
-        this.Price,
+        null,
+        null,
         null,
         null,
         null,
@@ -70,6 +70,9 @@ namespace DemirPriceBalance.Logic.Product
         null,
         null
       };
+      res[clmnQnty - 1] = this.Quantity;
+      res[clmnPrice - 1] = this.Price;
+      return res;
     }
     public string Model { get; set; }
     public TyreSeason Season { get; set; }

@@ -27,6 +27,12 @@ namespace DemirPriceBalance.Logic
     uint getProductCount(IXLRow row);
     string getProductManufacturer(IXLRow row);
     string getProductModel(IXLRow row);
+    decimal getWheelDiameter(IXLRow row);
+    decimal getWheelWidth(IXLRow row);
+    uint getWheelHoles(IXLRow row);
+    decimal getWheelPCD(IXLRow row);
+    decimal getWheelET(IXLRow row);
+    decimal getWheelDIA(IXLRow row);
     TyreSeason getTyreSeason(IXLRow row);
   }
 }

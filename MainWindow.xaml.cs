@@ -18,9 +18,10 @@ using Microsoft.Win32;
 
 using ClosedXML;
 using ClosedXML.Excel;
-//using System.Windows.Shapes;
 
 using DemirPriceBalance.Logic;
+using DemirPriceBalance.Logic.PriceReader;
+using DemirPriceBalance.Logic.Product;
 using Newtonsoft.Json.Linq;
 
 namespace DemirPriceBalance
@@ -84,40 +85,35 @@ namespace DemirPriceBalance
 
     private void worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
     {
-      switch(e.ProgressPercentage)
+      if (e.ProgressPercentage == 100)
       {
-        case 1:
-          lblState.Content = "Reading Unipol file...";
-          break;
-        case 2:
-          lblState.Content = "Reading ShinService file...";
-          break;
-        case 3:
-          lblState.Content = "Reading SaRu file...";
-          break;
-        case 4:
-          lblState.Content = "Merging and saving result...";
-          break;
-        default:
-          lblState.Content = "Done.";
-          break;
+        lblState.Content = "Done";
+      }
+      else
+      {
+        var provider = (string)e.UserState;
+        lblState.Content = String.Concat("Reading ", provider, "...");
       }
     }
 
     private void worker_DoWork(object sender, DoWorkEventArgs e)
     {
       var wrk = (BackgroundWorker)sender;
-      wrk.ReportProgress(1);
       var args = (List<string>)e.Argument;
-      var files = Config.data["inputFiles"];
-      var shin = ExcelReader.readPricelist(args.First(), new ShinServiceReader(Config.data["inputFiles"].First["srcFileConfig"]));
-      var uni = ExcelReader.readPricelist(args.ElementAt(1), new UnipolReader(Config.data["inputFiles"].ElementAt(1)["srcFileConfig"]));
-      var xls = ExcelReader.writePriceList(Config.data["outputFile"].Value<string>("path"), shin, Config.data["inputFiles"].First["trgFileConfig"]);
-      xls = ExcelReader.writePriceList(xls, uni, Config.data["inputFiles"].ElementAt(1)["trgFileConfig"]);
+      var fileData = new List<Dictionary<string, Product>>(args.Count);
+      for (var i = 0; i < args.Count; i++)
+      {
+        var provider = Config.data["inputFiles"][i].Value<string>("provider");
+        wrk.ReportProgress(i, provider);
+        fileData.Add(ExcelReader.readPricelist(args[i], PriceReaderFactory.getPriceReader(provider, Config.data["inputFiles"][i]["srcFileConfig"])));
+      }
+
+      var xls = new XLWorkbook(Config.data["outputFile"].Value<string>("path"), XLEventTracking.Disabled);
+      for(var i = 0; i < fileData.Count; i++) 
+        xls = ExcelReader.writePriceList(xls, fileData[i], Config.data["inputFiles"][i]["trgFileConfig"]);
+      
       xls.Save();
-      //Debug.WriteLine(shin.Count);
-      //Debug.WriteLine(uni.Count);
-      wrk.ReportProgress(5);
+      wrk.ReportProgress(100);
     }
 
 

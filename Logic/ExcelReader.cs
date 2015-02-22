@@ -51,10 +51,10 @@ namespace DemirPriceBalance.Logic
       var clmnPrice = parameters.Value<int>("price");
       var clmnQnty = parameters.Value<int>("quantity");
       var pId = parameters.Value<string>("productId");
-      var prds = wrs.Rows(startRow, endRow).ToDictionary(x => x.Cell(pId).Value.ToString().Trim(), x => x.RowNumber());
+      var lastRowIndex = wrs.LastRowUsed().RowNumber();
+      var prds = wrs.Rows(startRow, lastRowIndex++).ToDictionary(x => x.Cell(pId).Value.ToString().Trim(), x => x.RowNumber());
       wrs.Range(startRow, clmnPrice, endRow, clmnPrice).SetValue<decimal>(0);
       wrs.Range(startRow, clmnQnty, endRow, clmnQnty).SetValue<int>(0);
-      var lastRowIndex = wrs.LastRowUsed().RowNumber() + 1;
       var style = wrs.Row(lastRowIndex - 1).Style;
       foreach (var prd in data)
       {
@@ -67,9 +67,8 @@ namespace DemirPriceBalance.Logic
         {
           wrs.Row(lastRowIndex).Style = style;
           var cell = wrs.Cell(lastRowIndex++, 1);
-          var row = new List<object[]>() { prd.Value.ToExcelRow() };
+          var row = new List<object[]>() { prd.Value.ToExcelRow(clmnQnty, clmnPrice) };
           cell.InsertData(row.AsEnumerable());
-          
         }
       }
       return xls;

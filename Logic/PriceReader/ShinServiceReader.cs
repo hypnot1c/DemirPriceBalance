@@ -47,7 +47,7 @@ namespace DemirPriceBalance.Logic
     }
     public string getProductId(IXLRow row)
     {
-      return row.Cell(parameters["productId"].Value<int>()).Value.ToString().Trim();
+      return row.Cell(parameters["productId"].Value<int>()).Value.ToString().Trim().Split(',')[0];
     }
 
     public ProductType getProductType(IXLRow row)
@@ -62,34 +62,45 @@ namespace DemirPriceBalance.Logic
         case ProductType.tyre:
           var _prd = (Tyre)product;
           var val = cell.Value.ToString().Trim();
-          var reg = new Regex("[^| 0-9]{1,3}([/][0-9]{1,3}([A-Z]{0,1})){0,1} ");
+          var reg = new Regex("(^|\\s)[0-9]{1,3}(/[0-9]{1,3}){0,1}(\\s|$)");
           if (reg.IsMatch(val))
           {
-            var _obj = reg.Match(val).ToString().Split('/');
+            var _obj = reg.Match(val).ToString().Trim().Split('/');
             _prd.ProfileWidth = _obj[0];
             _prd.ProfileHeight = _obj.Length > 1 ? _obj[1] : null;
-            val = reg.Replace(val, String.Empty);
+            val = reg.Replace(val, " ");
           }
-          reg = new Regex("[R]([0-9]{0,2}){0,1}");
+          reg = new Regex("\\s[R][0-9]{1,2}[A-Z]{0,1}\\s");
           if (reg.IsMatch(val))
           {
-            _prd.Diameter = reg.Match(val).ToString().Substring(1);
-            val = reg.Replace(val, String.Empty);
+            _prd.Diameter = reg.Match(val).ToString().Trim().Substring(1);
+            val = reg.Replace(val, " ");
           }
-          reg = new Regex("[0-9]{1,3}([/][0-9]{1,3}){0,1}[A-Z]");
+          reg = new Regex("\\s[0-9]{1,3}([/][0-9]{1,3}){0,1}[A-Z](\\s|$)");
           if (reg.IsMatch(val))
           {
-            var str = reg.Match(val).ToString();
-            _prd.WeightIndex = str.Substring(0, str.Length - 2);
+            var str = reg.Match(val).ToString().Trim();
+            _prd.WeightIndex = str.Substring(0, str.Length - 1);
             _prd.SpeedIndex = str.Last().ToString();
-            val = reg.Replace(val, String.Empty);
+            if (val.IndexOf(" XL") != -1)
+            {
+              _prd.SpeedIndex += " XL";
+              val = val.Replace(" XL", String.Empty);
+            }
+            val = reg.Replace(val, " ");
           }
           if (val.IndexOf(" Ш") != -1)
           {
             _prd.HasSpikes = true;
             val = val.Replace(" Ш", String.Empty);
           }
-          _prd.Model = val.Trim();
+          if (val.IndexOf("RunFlat") != -1)
+          {
+            _prd.HasRunFlat = true;
+            val = val.Replace("RunFlat", String.Empty);
+          }
+          _prd.Manufacturer = val.Substring(0, val.IndexOf(" "));
+          _prd.Model = val.Replace(_prd.Manufacturer, String.Empty).Trim();
           break;
       }
       return product;
@@ -132,6 +143,32 @@ namespace DemirPriceBalance.Logic
     }
 
     public string getProductModel(IXLRow row)
+    {
+      throw new NotImplementedException();
+    }
+
+    public decimal getWheelDiameter(IXLRow row)
+    {
+      throw new NotImplementedException();
+    }
+    public decimal getWheelWidth(IXLRow row)
+    {
+      throw new NotImplementedException();
+    }
+
+    public uint getWheelHoles(IXLRow row)
+    {
+      throw new NotImplementedException();
+    }
+    public decimal getWheelPCD(IXLRow row)
+    {
+      throw new NotImplementedException();
+    }
+    public decimal getWheelET(IXLRow row)
+    {
+      throw new NotImplementedException();
+    }
+    public decimal getWheelDIA(IXLRow row)
     {
       throw new NotImplementedException();
     }

@@ -51,7 +51,7 @@ namespace DemirPriceBalance.Logic
 
     public string getProductId(IXLRow row)
     {
-      return row.Cell(parameters["productId"].Value<int>()).Value.ToString().Trim();
+      return row.Cell(parameters["productId"].Value<int>()).Value.ToString().Trim().Split(',')[0];
     }
 
     public ProductType getProductType(IXLRow row)
@@ -78,19 +78,30 @@ namespace DemirPriceBalance.Logic
             _prd.Diameter = _obj.Length > 1 ? _obj[1] : null;
             val = reg.Replace(val, String.Empty);
           }
-          if (val.IndexOf(" шип ") != -1)
+          if (val.IndexOf(" шип") != -1)
           {
             _prd.HasSpikes = true;
-            val = val.Replace(" шип ", String.Empty);
+            val = val.Replace(" шип", String.Empty);
+          }
+          if (val.IndexOf("RunFlat") != -1)
+          {
+            _prd.HasRunFlat = true;
+            val = val.Replace("RunFlat", String.Empty);
           }
           reg = new Regex("[0-9]{1,3}([/][0-9]{1,3}){0,1}[A-Z]");
           if (reg.IsMatch(val))
           {
             var str = reg.Match(val).ToString();
-            _prd.WeightIndex = str.Substring(0, str.Length - 2);
+            _prd.WeightIndex = str.Substring(0, str.Length - 1);
             _prd.SpeedIndex = str.Last().ToString();
+            if (val.IndexOf(" xl") != -1)
+            {
+              _prd.SpeedIndex += " XL";
+              val = val.Replace(" xl", String.Empty);
+            }
             val = reg.Replace(val, String.Empty);
           }
+          val = val.Replace(_prd.Manufacturer, String.Empty);
           _prd.Model = val.Trim();
           break;
       }
@@ -136,6 +147,31 @@ namespace DemirPriceBalance.Logic
     }
 
     public string getProductModel(IXLRow row)
+    {
+      throw new NotImplementedException();
+    }
+
+    public decimal getWheelDiameter(IXLRow row)
+    {
+      throw new NotImplementedException();
+    }
+    public decimal getWheelWidth(IXLRow row)
+    {
+      throw new NotImplementedException();
+    }
+    public uint getWheelHoles(IXLRow row)
+    {
+      throw new NotImplementedException();
+    }
+    public decimal getWheelPCD(IXLRow row)
+    {
+      throw new NotImplementedException();
+    }
+    public decimal getWheelET(IXLRow row)
+    {
+      throw new NotImplementedException();
+    }
+    public decimal getWheelDIA(IXLRow row)
     {
       throw new NotImplementedException();
     }

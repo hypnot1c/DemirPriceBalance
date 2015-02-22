@@ -46,6 +46,28 @@
           { 'start': 4, 'end': 6727 }
         ]
       }
+    },
+    {
+      'provider': 'СА.РУ',
+      'srcFileConfig': {
+        'path': 'docs/СА.РУ.xlsm',
+        'sheet': 'Диски',
+        'productId': 1,
+        'price': 6,
+        'quantity': 3,
+        'rows': [
+          { 'start': 2, 'end': 17381 }
+        ]
+      },
+      'trgFileConfig': {
+        'sheet': 'Диски реплика',
+        'productId': 1,
+        'price': 20,
+        'quantity': 19,
+        'rows': [
+          { 'start': 4, 'end': 12833 }
+        ]
+      }
     }
   ]
 }

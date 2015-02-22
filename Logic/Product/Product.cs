@@ -21,7 +21,7 @@ namespace DemirPriceBalance.Logic.Product
       this.Quantity = Quantity;
       this.Price = Price;
     }
-    public virtual object[] ToExcelRow()
+    public virtual object[] ToExcelRow(int clmnQnty, int clmnPrice)
     {
       return new object[]
       {

@@ -74,6 +74,8 @@
     <Compile Include="Logic\Config.cs" />
     <Compile Include="Logic\ExcelReader.cs" />
     <Compile Include="Logic\PriceReader\IPricelistReader.cs" />
+    <Compile Include="Logic\PriceReader\PriceReaderFactory.cs" />
+    <Compile Include="Logic\PriceReader\SaRuReader.cs" />
     <Compile Include="Logic\PriceReader\ShinServiceReader.cs" />
     <Compile Include="Logic\PriceReader\UnipolReader.cs" />
     <Compile Include="Logic\Product\Product.cs" />
