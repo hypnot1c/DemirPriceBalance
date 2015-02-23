@@ -69,5 +69,10 @@
         ]
       }
     }
+  ],
+  'SQLconfig':
+  [
+    { 'sheet': 'Шины', 'id': 1, 'price': 16, 'quantity': 15 },
+    { 'sheet': 'Диски реплика', 'id': 1, 'price': 13, 'quantity': 12 }
   ]
 }

@@ -148,17 +148,17 @@ namespace DemirPriceBalance
     }
     private void workerSQL_DoWork(object sender, DoWorkEventArgs e)
     {
-      //var parameters = new Dictionary<string, object> { { "pageName", "Шины" }, { "id", 1 }, { "price", 16 }, { "count", 15 } };
-      //var uni = ExcelReader.readExcel((string)e.Argument, parameters);
-      //parameters = new Dictionary<string, object> { { "pageName", "Диски реплика" }, { "id", 1 }, { "price", 13 }, { "count", 12 } };
-      //var sa = ExcelReader.readExcel((string)e.Argument, parameters);
+      var parameters = new Dictionary<string, object> { { "pageName", "Шины" }, { "id", 1 }, { "price", 16 }, { "count", 15 } };
+      var uni = ExcelReader.readExcel((string)e.Argument, parameters);
+      parameters = new Dictionary<string, object> { { "pageName", "Диски реплика" }, { "id", 1 }, { "price", 13 }, { "count", 12 } };
+      var sa = ExcelReader.readExcel((string)e.Argument, parameters);
       //parameters = new Dictionary<string, object> { { "pageName", "Диски тюнинг" }, { "id", 1 }, { "price", 13 }, { "count", 12 } };
       //var sa1 = ExcelReader.readExcel((string)e.Argument, parameters);
-      //var res = uni.Select(x => String.Concat("INSERT INTO `tmp_Import` (`id`, `price`, `count`) VALUES (\"", x.Key, "\", ", x.Value[1], ", ", x.Value[2], ");"));
-      //var res2 = sa.Select(x => String.Concat("INSERT INTO `tmp_Import` (`id`, `price`, `count`) VALUES (\"", x.Key, "\", ", x.Value[1], ", ", x.Value[2], ");"));
+      var res = uni.Select(x => String.Concat("INSERT INTO `tmp_Import` (`id`, `price`, `count`) VALUES (\"", x.Key, "\", ", x.Value[1], ", ", x.Value[2], ");"));
+      var res2 = sa.Select(x => String.Concat("INSERT INTO `tmp_Import` (`id`, `price`, `count`) VALUES (\"", x.Key, "\", ", x.Value[1], ", ", x.Value[2], ");"));
       //var res3 = sa1.Select(x => String.Concat("INSERT INTO `tmp_Import` (`id`, `price`, `count`) VALUES (\"", x.Key, "\", ", x.Value[1], ", ", x.Value[2], ");"));
 
-      //File.WriteAllLines(@"C:\Users\hypnotic\Documents\GitHub\DemirPriceBalance\DemirPriceBalance\docs\query.sql", res.Concat(res2).Concat(res3));
+      File.WriteAllLines(Path.GetFullPath(@"docs/query.sql"), res.Concat(res2));
     }
     private void button_Click(object sender, RoutedEventArgs e)
     {
